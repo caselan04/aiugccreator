@@ -115,7 +115,7 @@ const UGCEditor = () => {
 
           {/* Right Column - Preview */}
           <div className="space-y-4">
-            <div className="aspect-[9/13] bg-neutral-200 rounded-3xl overflow-hidden">
+            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden">
               {/* Video preview would go here */}
             </div>
             <div className="flex items-center gap-2 bg-neutral-200 rounded-xl p-4">
