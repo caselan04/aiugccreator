@@ -1,5 +1,6 @@
 
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -120,14 +121,21 @@ export const SidebarMenuItem = React.forwardRef<
 });
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
+interface SidebarMenuButtonProps extends React.HTMLAttributes<HTMLDivElement> {
+  asChild?: boolean;
+}
+
 export const SidebarMenuButton = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("w-full cursor-pointer", className)}
-    {...props}
-  />
-));
+  SidebarMenuButtonProps
+>(({ className, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : "div";
+  return (
+    <Comp
+      ref={ref}
+      className={cn("w-full cursor-pointer", className)}
+      {...props}
+    />
+  );
+});
 SidebarMenuButton.displayName = "SidebarMenuButton";
