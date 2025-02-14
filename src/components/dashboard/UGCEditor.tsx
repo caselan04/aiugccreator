@@ -10,6 +10,7 @@ const UGCEditor = () => {
   const [selectedTab, setSelectedTab] = useState("Templates");
   const [currentPage, setCurrentPage] = useState(1);
   const [avatarVideos, setAvatarVideos] = useState<{ path: string; url: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
 
@@ -19,30 +20,48 @@ const UGCEditor = () => {
 
   const fetchAvatarVideos = async () => {
     try {
-      const { data, error } = await supabase.storage.from('aiugcavatars').list();
+      setIsLoading(true);
+      console.log('Fetching videos from Supabase storage...');
+      
+      const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
       
       if (error) {
         console.error('Error fetching videos:', error);
         return;
       }
 
+      console.log('Found files:', files);
+
+      if (!files || files.length === 0) {
+        console.log('No files found in the bucket');
+        setIsLoading(false);
+        return;
+      }
+
       // Create signed URLs for each video
       const videosWithUrls = await Promise.all(
-        data.map(async (file) => {
-          const { data: { publicUrl } } = supabase.storage
-            .from('aiugcavatars')
-            .getPublicUrl(file.name);
-          
-          return {
-            path: file.name,
-            url: publicUrl
-          };
-        })
+        files
+          .filter(file => !file.name.startsWith('.')) // Filter out hidden files
+          .map(async (file) => {
+            const { data: { publicUrl } } = supabase.storage
+              .from('aiugcavatars')
+              .getPublicUrl(file.name);
+            
+            console.log(`Generated URL for ${file.name}:`, publicUrl);
+            
+            return {
+              path: file.name,
+              url: publicUrl
+            };
+          })
       );
 
+      console.log('Processed videos:', videosWithUrls);
       setAvatarVideos(videosWithUrls);
     } catch (error) {
       console.error('Error processing videos:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,25 +140,38 @@ const UGCEditor = () => {
                 </div>
               </div>
               <div className="grid grid-cols-11 gap-2">
-                {currentVideos.map((video, index) => (
-                  <button
-                    key={index}
-                    className="aspect-square rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden"
-                  >
-                    <video 
-                      src={video.url}
-                      className="w-full h-full object-cover rounded-xl"
-                      preload="metadata"
-                      muted
-                      playsInline
-                      onMouseEnter={(e) => e.currentTarget.play()}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.pause();
-                        e.currentTarget.currentTime = 0;
-                      }}
-                    />
-                  </button>
-                ))}
+                {isLoading ? (
+                  <div className="col-span-11 text-center py-8 text-neutral-500">
+                    Loading videos...
+                  </div>
+                ) : avatarVideos.length === 0 ? (
+                  <div className="col-span-11 text-center py-8 text-neutral-500">
+                    No videos found in storage
+                  </div>
+                ) : (
+                  currentVideos.map((video, index) => (
+                    <button
+                      key={index}
+                      className="aspect-square rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden"
+                      onClick={() => console.log('Video URL:', video.url)}
+                    >
+                      <video 
+                        src={video.url}
+                        className="w-full h-full object-cover rounded-xl"
+                        preload="metadata"
+                        muted
+                        playsInline
+                        onError={(e) => console.error('Video loading error:', e)}
+                        onLoadStart={() => console.log('Video loading started:', video.url)}
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause();
+                          e.currentTarget.currentTime = 0;
+                        }}
+                      />
+                    </button>
+                  ))
+                )}
               </div>
             </div>
 
