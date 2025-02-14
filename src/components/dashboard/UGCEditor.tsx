@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +25,7 @@ const UGCEditor = () => {
   const [demoVideos, setDemoVideos] = useState<DemoVideo[]>([]);
   const [selectedDemoVideo, setSelectedDemoVideo] = useState<DemoVideo | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showingDemo, setShowingDemo] = useState(false);
   const { toast } = useToast();
   
   const itemsPerPage = 33;
@@ -355,13 +355,15 @@ const UGCEditor = () => {
                         className="w-full h-full object-cover"
                         preload="metadata"
                         muted
-                        loop
                         playsInline
                         controls={false}
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.pause();
-                          e.currentTarget.currentTime = 0;
+                        onEnded={(e) => {
+                          if (selectedDemoVideo) {
+                            e.currentTarget.classList.add('hidden');
+                            const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
+                            demoVideo?.classList.remove('hidden');
+                            demoVideo?.play();
+                          }
                         }}
                       />
                     </button>
@@ -387,6 +389,7 @@ const UGCEditor = () => {
                     controls={false}
                     onEnded={(e) => {
                       if (selectedDemoVideo) {
+                        setShowingDemo(true);
                         e.currentTarget.classList.add('hidden');
                         const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
                         demoVideo?.classList.remove('hidden');
@@ -403,6 +406,7 @@ const UGCEditor = () => {
                       playsInline
                       controls={false}
                       onEnded={(e) => {
+                        setShowingDemo(false);
                         e.currentTarget.classList.add('hidden');
                         const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
                         mainVideo?.classList.remove('hidden');
@@ -410,7 +414,7 @@ const UGCEditor = () => {
                       }}
                     />
                   )}
-                  {hookText && (
+                  {hookText && !showingDemo && (
                     <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
                       hookPosition === 'top' ? 'top-8' :
                       hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' :
