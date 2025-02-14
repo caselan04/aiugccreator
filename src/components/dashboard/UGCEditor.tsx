@@ -377,16 +377,26 @@ const UGCEditor = () => {
               {selectedVideo ? (
                 <>
                   <video
+                    key={selectedVideo.url}
                     src={selectedVideo.url}
                     className="w-full h-full object-contain"
                     autoPlay
                     muted
-                    loop
+                    loop={!selectedDemoVideo}
                     playsInline
                     controls={false}
+                    onEnded={(e) => {
+                      if (selectedDemoVideo) {
+                        e.currentTarget.classList.add('hidden');
+                        const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
+                        demoVideo?.classList.remove('hidden');
+                        demoVideo?.play();
+                      }
+                    }}
                   />
                   {selectedDemoVideo && (
                     <video
+                      key={selectedDemoVideo.url}
                       src={selectedDemoVideo.url}
                       className="w-full h-full object-contain hidden"
                       muted
