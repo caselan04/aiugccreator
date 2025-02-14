@@ -315,15 +315,6 @@ const UGCEditor = () => {
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">3. Demos</h2>
               <div className="flex gap-2">
-                <button 
-                  className={`px-6 py-3 rounded-xl border flex items-center gap-2 hover:bg-neutral-50 transition-colors ${
-                    !selectedDemoVideo ? 'bg-white border-primary' : 'bg-white border-neutral-200'
-                  }`}
-                  onClick={handleRemoveDemo}
-                >
-                  <X size={16} className="text-neutral-500" />
-                  <span>None</span>
-                </button>
                 <FileTrigger
                   onSelect={(e) => {
                     if (!e) return;
