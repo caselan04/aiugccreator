@@ -5,8 +5,11 @@ import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 
+type HookPosition = 'top' | 'middle' | 'bottom';
+
 const UGCEditor = () => {
   const [hookText, setHookText] = useState("");
+  const [hookPosition, setHookPosition] = useState<HookPosition>('top');
   const [selectedTab, setSelectedTab] = useState("Templates");
   const [currentPage, setCurrentPage] = useState(1);
   const [avatarVideos, setAvatarVideos] = useState<{ path: string; url: string }[]>([]);
@@ -99,25 +102,42 @@ const UGCEditor = () => {
             {/* Hook Section */}
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">1. Hook</h2>
-              <div className="relative">
-                <button 
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
-                  onClick={() => console.log("Previous hook")}
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <Input
-                  className="pl-10 pr-10 h-12 bg-white border-transparent rounded-2xl text-center"
-                  placeholder="edit ur text here"
-                  value={hookText}
-                  onChange={(e) => setHookText(e.target.value)}
-                />
-                <button 
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
-                  onClick={() => console.log("Next hook")}
-                >
-                  <ChevronRight size={20} />
-                </button>
+              <div className="space-y-4">
+                <div className="relative">
+                  <button 
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    onClick={() => console.log("Previous hook")}
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <Input
+                    className="pl-10 pr-10 h-12 bg-white border-transparent rounded-2xl text-center"
+                    placeholder="edit ur text here"
+                    value={hookText}
+                    onChange={(e) => setHookText(e.target.value)}
+                  />
+                  <button 
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    onClick={() => console.log("Next hook")}
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  {(['top', 'middle', 'bottom'] as HookPosition[]).map((position) => (
+                    <button
+                      key={position}
+                      className={`px-4 py-2 rounded-xl capitalize ${
+                        hookPosition === position 
+                          ? 'bg-primary text-white' 
+                          : 'bg-white text-neutral-600 hover:bg-neutral-50'
+                      }`}
+                      onClick={() => setHookPosition(position)}
+                    >
+                      {position}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -228,7 +248,11 @@ const UGCEditor = () => {
                     controls={false}
                   />
                   {hookText && (
-                    <div className="absolute top-8 left-0 right-0 px-6 pointer-events-none">
+                    <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
+                      hookPosition === 'top' ? 'top-8' :
+                      hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' :
+                      'bottom-8'
+                    }`}>
                       <div className="text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">
                         {hookText}
                       </div>
