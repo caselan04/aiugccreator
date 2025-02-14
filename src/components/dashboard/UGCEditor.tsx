@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -104,27 +103,13 @@ const UGCEditor = () => {
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">1. Hook</h2>
               <div className="space-y-4">
-                <div className="relative">
-                  <button 
-                    className="absolute left-3 top-4 text-neutral-400 hover:text-neutral-600 transition-colors"
-                    onClick={() => console.log("Previous hook")}
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  <Textarea
-                    className="pl-10 pr-10 min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none"
-                    placeholder="edit ur text here"
-                    value={hookText}
-                    onChange={(e) => setHookText(e.target.value)}
-                    rows={3}
-                  />
-                  <button 
-                    className="absolute right-3 top-4 text-neutral-400 hover:text-neutral-600 transition-colors"
-                    onClick={() => console.log("Next hook")}
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
+                <Textarea
+                  className="min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none"
+                  placeholder="edit ur text here"
+                  value={hookText}
+                  onChange={(e) => setHookText(e.target.value)}
+                  rows={3}
+                />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map((position) => (
                     <button
