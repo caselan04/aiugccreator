@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { FileTriggerButton } from "@/components/ui/file-trigger";
+import { FileTrigger } from "react-aria-components";
 import { Button } from "@/components/ui/button";
 
 type HookPosition = 'top' | 'middle' | 'bottom';
