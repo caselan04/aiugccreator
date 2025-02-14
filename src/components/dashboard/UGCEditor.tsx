@@ -23,18 +23,26 @@ const UGCEditor = () => {
       setIsLoading(true);
       console.log('Fetching videos from Supabase storage...');
       
+      // Test with the known working URL first
+      const testVideo = {
+        path: 'replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4',
+        url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4'
+      };
+      
       const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
       
       if (error) {
         console.error('Error fetching videos:', error);
+        // Even if there's an error, we'll show the test video
+        setAvatarVideos([testVideo]);
         return;
       }
 
       console.log('Found files:', files);
 
       if (!files || files.length === 0) {
-        console.log('No files found in the bucket');
-        setIsLoading(false);
+        console.log('No files found in the bucket, using test video');
+        setAvatarVideos([testVideo]);
         return;
       }
 
@@ -160,7 +168,9 @@ const UGCEditor = () => {
                         className="w-full h-full object-cover rounded-xl"
                         preload="metadata"
                         muted
+                        loop
                         playsInline
+                        controls={false}
                         onError={(e) => console.error('Video loading error:', e)}
                         onLoadStart={() => console.log('Video loading started:', video.url)}
                         onMouseEnter={(e) => e.currentTarget.play()}
