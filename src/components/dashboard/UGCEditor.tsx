@@ -1,12 +1,18 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 type HookPosition = 'top' | 'middle' | 'bottom';
+type DemoVideo = {
+  id: string;
+  file_path: string;
+  file_name: string;
+  url?: string;
+};
 
 const UGCEditor = () => {
   const [hookText, setHookText] = useState("");
@@ -16,11 +22,17 @@ const UGCEditor = () => {
   const [avatarVideos, setAvatarVideos] = useState<{ path: string; url: string }[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<{ path: string; url: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [demoVideos, setDemoVideos] = useState<DemoVideo[]>([]);
+  const [selectedDemoVideo, setSelectedDemoVideo] = useState<DemoVideo | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+  
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
 
   useEffect(() => {
     fetchAvatarVideos();
+    fetchDemoVideos();
   }, []);
 
   const fetchAvatarVideos = async () => {
@@ -91,10 +103,96 @@ const UGCEditor = () => {
     }
   };
 
-  // Calculate pagination
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentVideos = avatarVideos.slice(startIndex, endIndex);
+  const fetchDemoVideos = async () => {
+    try {
+      const { data: demos, error } = await supabase
+        .from('demo_videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const videosWithUrls = await Promise.all((demos || []).map(async (demo) => {
+        const { data: { publicUrl } } = supabase.storage
+          .from('demo_videos')
+          .getPublicUrl(demo.file_path);
+        
+        return {
+          ...demo,
+          url: publicUrl
+        };
+      }));
+
+      setDemoVideos(videosWithUrls);
+    } catch (error) {
+      console.error('Error fetching demo videos:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load demo videos",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDemoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a video file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('demo_videos')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('demo_videos')
+        .insert({
+          file_path: filePath,
+          file_name: file.name,
+          content_type: file.type,
+          size: file.size
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "Demo video uploaded successfully"
+      });
+
+      // Refresh the demo videos list
+      fetchDemoVideos();
+    } catch (error) {
+      console.error('Error uploading demo video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload demo video",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveDemo = async () => {
+    setSelectedDemoVideo(null);
+  };
 
   return (
     <div className="max-w-[1400px] mx-auto">
@@ -213,15 +311,55 @@ const UGCEditor = () => {
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">3. Demos</h2>
               <div className="flex gap-2">
-                <button className="px-6 py-3 bg-white rounded-xl border border-primary flex items-center gap-2 hover:bg-neutral-50 transition-colors">
+                <button 
+                  className={`px-6 py-3 rounded-xl border flex items-center gap-2 hover:bg-neutral-50 transition-colors ${
+                    !selectedDemoVideo ? 'bg-white border-primary' : 'bg-white border-neutral-200'
+                  }`}
+                  onClick={handleRemoveDemo}
+                >
                   <X size={16} className="text-neutral-500" />
                   <span>None</span>
                 </button>
-                <button className="px-6 py-3 bg-white rounded-xl border border-neutral-200 flex items-center gap-2 hover:bg-neutral-50 transition-colors">
+                <label className="px-6 py-3 bg-white rounded-xl border border-neutral-200 flex items-center gap-2 hover:bg-neutral-50 transition-colors cursor-pointer">
                   <Plus size={16} className="text-neutral-500" />
-                  <span>Add Demo</span>
-                </button>
+                  <span>{isUploading ? 'Uploading...' : 'Add Demo'}</span>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={handleDemoUpload}
+                    disabled={isUploading}
+                  />
+                </label>
               </div>
+              {demoVideos.length > 0 && (
+                <div className="mt-4 grid grid-cols-6 gap-2">
+                  {demoVideos.map((demo) => (
+                    <button
+                      key={demo.id}
+                      className={`aspect-video rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden ${
+                        selectedDemoVideo?.id === demo.id ? 'ring-2 ring-primary ring-offset-2' : ''
+                      }`}
+                      onClick={() => setSelectedDemoVideo(demo)}
+                    >
+                      <video 
+                        src={demo.url}
+                        className="w-full h-full object-cover"
+                        preload="metadata"
+                        muted
+                        loop
+                        playsInline
+                        controls={false}
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause();
+                          e.currentTarget.currentTime = 0;
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -239,6 +377,21 @@ const UGCEditor = () => {
                     playsInline
                     controls={false}
                   />
+                  {selectedDemoVideo && (
+                    <video
+                      src={selectedDemoVideo.url}
+                      className="w-full h-full object-contain hidden"
+                      muted
+                      playsInline
+                      controls={false}
+                      onEnded={(e) => {
+                        e.currentTarget.classList.add('hidden');
+                        const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
+                        mainVideo?.classList.remove('hidden');
+                        mainVideo?.play();
+                      }}
+                    />
+                  )}
                   {hookText && (
                     <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
                       hookPosition === 'top' ? 'top-8' :
