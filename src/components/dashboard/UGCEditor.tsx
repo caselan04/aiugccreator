@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +5,9 @@ import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { FileTriggerButton } from "@/components/ui/file-trigger";
+import { FileTrigger } from "react-aria-components";
+import { Button } from "@/components/ui/button";
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type DemoVideo = {
@@ -147,7 +149,7 @@ const UGCEditor = () => {
     }
   };
 
-  const handleDemoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDemoUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -333,17 +335,20 @@ const UGCEditor = () => {
                   <X size={16} className="text-neutral-500" />
                   <span>None</span>
                 </button>
-                <label className="px-6 py-3 bg-white rounded-xl border border-neutral-200 flex items-center gap-2 hover:bg-neutral-50 transition-colors cursor-pointer">
-                  <Plus size={16} className="text-neutral-500" />
-                  <span>{isUploading ? 'Uploading...' : 'Add Demo'}</span>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={handleDemoUpload}
-                    disabled={isUploading}
-                  />
-                </label>
+                <FileTrigger
+                  onSelect={(e) => {
+                    if (!e) return;
+                    const file = Array.from(e)[0];
+                    if (file) {
+                      handleDemoUpload({ target: { files: [file] } } as any);
+                    }
+                  }}
+                >
+                  <Button className="px-6 py-3 bg-white rounded-xl border border-neutral-200 flex items-center gap-2 hover:bg-neutral-50 transition-colors">
+                    <Plus size={16} className="text-neutral-500" />
+                    <span>{isUploading ? 'Uploading...' : 'Add Demo'}</span>
+                  </Button>
+                </FileTrigger>
               </div>
               {demoVideos.length > 0 && (
                 <div className="mt-4 grid grid-cols-6 gap-2">
