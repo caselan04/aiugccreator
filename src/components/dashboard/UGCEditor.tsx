@@ -65,7 +65,9 @@ const UGCEditor = () => {
       );
 
       console.log('Processed videos:', videosWithUrls);
-      setAvatarVideos(videosWithUrls);
+      // Add test video to the list if it's not already included
+      const allVideos = [testVideo, ...videosWithUrls.filter(v => v.path !== testVideo.path)];
+      setAvatarVideos(allVideos);
     } catch (error) {
       console.error('Error processing videos:', error);
     } finally {
