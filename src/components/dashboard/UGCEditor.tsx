@@ -23,26 +23,32 @@ const UGCEditor = () => {
       setIsLoading(true);
       console.log('Fetching videos from Supabase storage...');
       
-      // Test with the known working URL first
-      const testVideo = {
-        path: 'replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4',
-        url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4'
-      };
+      // Known working videos
+      const knownVideos = [
+        {
+          path: 'replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4',
+          url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4'
+        },
+        {
+          path: 'replicate-prediction-pv8ttqx551rm80cmvj7rfee9q8.mp4',
+          url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-pv8ttqx551rm80cmvj7rfee9q8.mp4'
+        }
+      ];
       
       const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
       
       if (error) {
         console.error('Error fetching videos:', error);
-        // Even if there's an error, we'll show the test video
-        setAvatarVideos([testVideo]);
+        // Even if there's an error, we'll show the known videos
+        setAvatarVideos(knownVideos);
         return;
       }
 
       console.log('Found files:', files);
 
       if (!files || files.length === 0) {
-        console.log('No files found in the bucket, using test video');
-        setAvatarVideos([testVideo]);
+        console.log('No files found in the bucket, using known videos');
+        setAvatarVideos(knownVideos);
         return;
       }
 
@@ -65,8 +71,11 @@ const UGCEditor = () => {
       );
 
       console.log('Processed videos:', videosWithUrls);
-      // Add test video to the list if it's not already included
-      const allVideos = [testVideo, ...videosWithUrls.filter(v => v.path !== testVideo.path)];
+      // Add known videos to the list if they're not already included
+      const allVideos = [
+        ...knownVideos,
+        ...videosWithUrls.filter(v => !knownVideos.some(kv => kv.path === v.path))
+      ];
       setAvatarVideos(allVideos);
     } catch (error) {
       console.error('Error processing videos:', error);
