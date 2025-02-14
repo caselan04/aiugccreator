@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -105,19 +106,20 @@ const UGCEditor = () => {
               <div className="space-y-4">
                 <div className="relative">
                   <button 
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    className="absolute left-3 top-4 text-neutral-400 hover:text-neutral-600 transition-colors"
                     onClick={() => console.log("Previous hook")}
                   >
                     <ChevronLeft size={20} />
                   </button>
-                  <Input
-                    className="pl-10 pr-10 h-12 bg-white border-transparent rounded-2xl text-center"
+                  <Textarea
+                    className="pl-10 pr-10 min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none"
                     placeholder="edit ur text here"
                     value={hookText}
                     onChange={(e) => setHookText(e.target.value)}
+                    rows={3}
                   />
                   <button 
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    className="absolute right-3 top-4 text-neutral-400 hover:text-neutral-600 transition-colors"
                     onClick={() => console.log("Next hook")}
                   >
                     <ChevronRight size={20} />
@@ -253,7 +255,7 @@ const UGCEditor = () => {
                       hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' :
                       'bottom-8'
                     }`}>
-                      <div className="text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">
+                      <div className="text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full">
                         {hookText}
                       </div>
                     </div>
