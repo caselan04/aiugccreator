@@ -215,11 +215,11 @@ const UGCEditor = () => {
 
           {/* Right Column - Preview */}
           <div className="space-y-4">
-            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden">
+            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center">
               {selectedVideo ? (
                 <video
                   src={selectedVideo.url}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   autoPlay
                   muted
                   loop
