@@ -10,6 +10,7 @@ const UGCEditor = () => {
   const [selectedTab, setSelectedTab] = useState("Templates");
   const [currentPage, setCurrentPage] = useState(1);
   const [avatarVideos, setAvatarVideos] = useState<{ path: string; url: string }[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<{ path: string; url: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
@@ -39,7 +40,6 @@ const UGCEditor = () => {
       
       if (error) {
         console.error('Error fetching videos:', error);
-        // Even if there's an error, we'll show the known videos
         setAvatarVideos(knownVideos);
         return;
       }
@@ -55,7 +55,7 @@ const UGCEditor = () => {
       // Create signed URLs for each video
       const videosWithUrls = await Promise.all(
         files
-          .filter(file => !file.name.startsWith('.')) // Filter out hidden files
+          .filter(file => !file.name.startsWith('.'))
           .map(async (file) => {
             const { data: { publicUrl } } = supabase.storage
               .from('aiugcavatars')
@@ -71,7 +71,6 @@ const UGCEditor = () => {
       );
 
       console.log('Processed videos:', videosWithUrls);
-      // Add known videos to the list if they're not already included
       const allVideos = [
         ...knownVideos,
         ...videosWithUrls.filter(v => !knownVideos.some(kv => kv.path === v.path))
@@ -171,8 +170,10 @@ const UGCEditor = () => {
                   currentVideos.map((video, index) => (
                     <button
                       key={index}
-                      className="aspect-square rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden"
-                      onClick={() => console.log('Video URL:', video.url)}
+                      className={`aspect-square rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden ${
+                        selectedVideo?.path === video.path ? 'ring-2 ring-primary ring-offset-2' : ''
+                      }`}
+                      onClick={() => setSelectedVideo(video)}
                     >
                       <video 
                         src={video.url}
@@ -215,7 +216,21 @@ const UGCEditor = () => {
           {/* Right Column - Preview */}
           <div className="space-y-4">
             <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden">
-              {/* Video preview would go here */}
+              {selectedVideo ? (
+                <video
+                  src={selectedVideo.url}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  controls={false}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                  Select an AI avatar to preview
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2 bg-neutral-200 rounded-xl p-4">
               <div className="w-8 h-8 bg-neutral-300 rounded-lg"></div>
