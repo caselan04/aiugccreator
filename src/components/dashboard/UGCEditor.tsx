@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
@@ -29,6 +30,13 @@ const UGCEditor = () => {
   
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
+
+  // Calculate current page videos
+  const currentVideos = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return avatarVideos.slice(startIndex, endIndex);
+  }, [avatarVideos, currentPage, itemsPerPage]);
 
   useEffect(() => {
     fetchAvatarVideos();
