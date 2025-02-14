@@ -215,17 +215,26 @@ const UGCEditor = () => {
 
           {/* Right Column - Preview */}
           <div className="space-y-4">
-            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center">
+            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
               {selectedVideo ? (
-                <video
-                  src={selectedVideo.url}
-                  className="w-full h-full object-contain"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  controls={false}
-                />
+                <>
+                  <video
+                    src={selectedVideo.url}
+                    className="w-full h-full object-contain"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls={false}
+                  />
+                  {hookText && (
+                    <div className="absolute top-8 left-0 right-0 px-6 pointer-events-none">
+                      <div className="text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">
+                        {hookText}
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-neutral-500">
                   Select an AI avatar to preview
