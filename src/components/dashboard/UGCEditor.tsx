@@ -6,7 +6,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { FileTriggerButton } from "@/components/ui/file-trigger";
-import { FileTrigger } from "react-aria-components";
 import { Button } from "@/components/ui/button";
 
 type HookPosition = 'top' | 'middle' | 'bottom';
@@ -34,7 +33,6 @@ const UGCEditor = () => {
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
 
-  // Calculate current page videos
   const currentVideos = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -51,7 +49,6 @@ const UGCEditor = () => {
       setIsLoading(true);
       console.log('Fetching videos from Supabase storage...');
       
-      // Known working videos
       const knownVideos = [
         {
           path: 'replicate-prediction-tp3rf54qrdrmc0cn041rnm125r.mp4',
@@ -87,7 +84,6 @@ const UGCEditor = () => {
         return;
       }
 
-      // Create signed URLs for each video
       const videosWithUrls = await Promise.all(
         files
           .filter(file => !file.name.startsWith('.'))
@@ -167,14 +163,12 @@ const UGCEditor = () => {
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('demo_videos')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Save to database
       const { error: dbError } = await supabase
         .from('demo_videos')
         .insert({
@@ -191,7 +185,6 @@ const UGCEditor = () => {
         description: "Demo video uploaded successfully"
       });
 
-      // Refresh the demo videos list
       fetchDemoVideos();
     } catch (error) {
       console.error('Error uploading demo video:', error);
@@ -215,9 +208,7 @@ const UGCEditor = () => {
       
       <div className="bg-neutral-100 rounded-2xl p-8 min-h-[600px]">
         <div className="grid grid-cols-2 gap-8">
-          {/* Left Column */}
           <div className="space-y-8">
-            {/* Hook Section */}
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">1. Hook</h2>
               <div className="space-y-4">
@@ -246,7 +237,6 @@ const UGCEditor = () => {
               </div>
             </div>
 
-            {/* AI Avatar Section */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-medium text-neutral-800">2. AI avatar</h2>
@@ -322,7 +312,6 @@ const UGCEditor = () => {
               </div>
             </div>
 
-            {/* Demos Section */}
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">3. Demos</h2>
               <div className="flex gap-2">
@@ -344,8 +333,8 @@ const UGCEditor = () => {
                     }
                   }}
                 >
-                  <Button className="px-6 py-3 bg-white rounded-xl border border-neutral-200 flex items-center gap-2 hover:bg-neutral-50 transition-colors">
-                    <Plus size={16} className="text-neutral-500" />
+                  <Button variant="default" className="flex items-center gap-2">
+                    <Plus size={16} />
                     <span>{isUploading ? 'Uploading...' : 'Add Demo'}</span>
                   </Button>
                 </FileTrigger>
@@ -383,7 +372,6 @@ const UGCEditor = () => {
             </div>
           </div>
 
-          {/* Right Column - Preview */}
           <div className="space-y-4">
             <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
               {selectedVideo ? (
