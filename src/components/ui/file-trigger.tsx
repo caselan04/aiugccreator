@@ -24,4 +24,3 @@ export function FileTriggerButton() {
     </FileTrigger>
   )
 }
-export { FileTriggerButton }

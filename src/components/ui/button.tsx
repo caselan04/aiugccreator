@@ -53,22 +53,26 @@ interface ButtonProps
   extends AriaButtonProps,
     VariantProps<typeof buttonVariants> {}
 
-const Button = ({ className, variant, size, ...props }: ButtonProps) => {
-  return (
-    <AriaButton
-      className={composeRenderProps(className, (className) =>
-        cn(
-          buttonVariants({
-            variant,
-            size,
-            className,
-          })
-        )
-      )}
-      {...props}
-    />
-  )
-}
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, ...props }, ref) => {
+    return (
+      <AriaButton
+        ref={ref}
+        className={composeRenderProps(className, (className) =>
+          cn(
+            buttonVariants({
+              variant,
+              size,
+              className,
+            })
+          )
+        )}
+        {...props}
+      />
+    )
+  }
+)
+Button.displayName = "Button"
 
 export { Button, buttonVariants }
 export type { ButtonProps }
