@@ -1,20 +1,55 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
 
 const UGCEditor = () => {
   const [hookText, setHookText] = useState("");
   const [selectedTab, setSelectedTab] = useState("Templates");
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 2;
+  const [avatarVideos, setAvatarVideos] = useState<{ path: string; url: string }[]>([]);
+  const itemsPerPage = 33;
+  const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
 
-  // Simulate avatar data
-  const avatars = Array.from({ length: 33 }, (_, i) => ({
-    id: i + 1,
-    src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`,
-  }));
+  useEffect(() => {
+    fetchAvatarVideos();
+  }, []);
+
+  const fetchAvatarVideos = async () => {
+    try {
+      const { data, error } = await supabase.storage.from('aiugcavatars').list();
+      
+      if (error) {
+        console.error('Error fetching videos:', error);
+        return;
+      }
+
+      // Create signed URLs for each video
+      const videosWithUrls = await Promise.all(
+        data.map(async (file) => {
+          const { data: { publicUrl } } = supabase.storage
+            .from('aiugcavatars')
+            .getPublicUrl(file.name);
+          
+          return {
+            path: file.name,
+            url: publicUrl
+          };
+        })
+      );
+
+      setAvatarVideos(videosWithUrls);
+    } catch (error) {
+      console.error('Error processing videos:', error);
+    }
+  };
+
+  // Calculate pagination
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentVideos = avatarVideos.slice(startIndex, endIndex);
 
   return (
     <div className="max-w-[1400px] mx-auto">
@@ -70,13 +105,15 @@ const UGCEditor = () => {
                     <button 
                       className="hover:text-neutral-700"
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
                     >
                       <ChevronLeft size={16} />
                     </button>
-                    <span>{currentPage}/{totalPages}</span>
+                    <span>{currentPage}/{Math.max(1, totalPages)}</span>
                     <button 
                       className="hover:text-neutral-700"
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
                     >
                       <ChevronRight size={16} />
                     </button>
@@ -84,14 +121,23 @@ const UGCEditor = () => {
                 </div>
               </div>
               <div className="grid grid-cols-11 gap-2">
-                {avatars.map((avatar) => (
+                {currentVideos.map((video, index) => (
                   <button
-                    key={avatar.id}
-                    className="aspect-square rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all"
+                    key={index}
+                    className="aspect-square rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden"
                   >
-                    <Avatar className="w-full h-full rounded-xl">
-                      <img src={avatar.src} alt="AI Avatar" className="w-full h-full object-cover rounded-xl" />
-                    </Avatar>
+                    <video 
+                      src={video.url}
+                      className="w-full h-full object-cover rounded-xl"
+                      preload="metadata"
+                      muted
+                      playsInline
+                      onMouseEnter={(e) => e.currentTarget.play()}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.pause();
+                        e.currentTarget.currentTime = 0;
+                      }}
+                    />
                   </button>
                 ))}
               </div>
