@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -136,11 +135,6 @@ const Videos = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {videos?.map((video) => (
                     <Card key={video.id} className="overflow-hidden">
-                      <CardHeader>
-                        <CardTitle className="text-lg">
-                          {video.title || "Untitled"}
-                        </CardTitle>
-                      </CardHeader>
                       <CardContent className="space-y-4">
                         {video.status === "completed" && (
                           <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden relative">
