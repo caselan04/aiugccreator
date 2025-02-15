@@ -101,42 +101,34 @@ serve(async (req) => {
       console.log('Created Mux asset for demo video:', demoAsset)
     }
 
-    // Create a composition
-    const compositionInput = {
-      input: [{
-        url: `https://stream.mux.com/${avatarAsset.data.playback_ids[0].id}.m3u8`,
-        ...(demoUrl && { trim_offset: { end_time: 0 } })
-      }]
-    }
-
-    if (demoAsset) {
-      compositionInput.input.push({
-        url: `https://stream.mux.com/${demoAsset.data.playback_ids[0].id}.m3u8`,
-        trim_offset: { start_time: 0 }
-      })
-    }
-
-    // Add overlay if hook text exists
-    if (video.hook_text) {
-      compositionInput.overlay = {
-        text: [{
-          text: video.hook_text,
-          x: '(w-tw)/2',
-          y: video.hook_position === 'top' ? '10' : 
-             video.hook_position === 'middle' ? '(h-th)/2' : 
-             'h-th-10',
-          font_family: video.font_style === 'serif' ? 'serif' :
+    // Prepare the input array for the final composition
+    const inputs = [
+      {
+        url: avatarUrl,
+        overlay: video.hook_text ? {
+          text: [{
+            text: video.hook_text,
+            x: '(w-tw)/2',
+            y: video.hook_position === 'top' ? '10' : 
+               video.hook_position === 'middle' ? '(h-th)/2' : 
+               'h-th-10',
+            font_family: video.font_style === 'serif' ? 'serif' :
                       video.font_style === 'mono' ? 'monospace' :
                       'sans-serif',
-          font_size: '24',
-          color: 'white',
-          stroke_color: 'black',
-          stroke_width: '2'
-        }]
+            font_size: '24',
+            color: 'white',
+            stroke_color: 'black',
+            stroke_width: '2'
+          }]
+        }
       }
+    ]
+
+    if (demoUrl) {
+      inputs.push({ url: demoUrl })
     }
 
-    console.log('Sending composition request with input:', JSON.stringify(compositionInput, null, 2))
+    console.log('Sending composition request with inputs:', JSON.stringify(inputs, null, 2))
 
     const compositionResponse = await fetch('https://api.mux.com/video/v1/assets', {
       method: 'POST',
@@ -145,27 +137,7 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        input: [
-          {
-            url: avatarUrl,
-            overlay: video.hook_text ? {
-              text: [{
-                text: video.hook_text,
-                x: '(w-tw)/2',
-                y: video.hook_position === 'top' ? '10' : 
-                   video.hook_position === 'middle' ? '(h-th)/2' : 
-                   'h-th-10',
-                font_family: video.font_style === 'serif' ? 'serif' :
-                          video.font_style === 'mono' ? 'monospace' :
-                          'sans-serif',
-                font_size: '24',
-                color: 'white',
-                stroke_color: 'black',
-                stroke_width: '2'
-              }]
-            } : undefined
-          }
-        ],
+        input: inputs,
         playback_policy: ['public']
       })
     })
