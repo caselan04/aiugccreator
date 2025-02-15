@@ -81,8 +81,8 @@ const HookGenerator = () => {
               </div>
 
               <Button
-                onClick={generateHook}
-                disabled={isLoading || !productDescription.trim()}
+                onPress={generateHook}
+                isDisabled={isLoading || !productDescription.trim()}
                 className="w-full"
               >
                 {isLoading ? (
