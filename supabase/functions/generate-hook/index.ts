@@ -99,16 +99,23 @@ serve(async (req) => {
       }
 
       result = await pollResponse.json();
-      console.log("Polling status:", result.status);
+      console.log("Polling status:", result.status, "Output:", result.output);
     }
 
     if (result.status === "failed" || attempts >= maxAttempts) {
       throw new Error(result.error || "Failed to generate hook or timeout reached");
     }
 
-    // Handle the output
-    const generatedHook = Array.isArray(result.output) ? result.output[0] : result.output;
+    // Handle the output - Replicate returns an array of string chunks
+    let generatedHook = "";
+    if (Array.isArray(result.output)) {
+      generatedHook = result.output.join("");
+    } else if (typeof result.output === "string") {
+      generatedHook = result.output;
+    }
+
     if (!generatedHook) {
+      console.error("Empty output received:", result);
       throw new Error("No hook generated");
     }
 
