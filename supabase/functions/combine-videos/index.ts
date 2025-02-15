@@ -107,75 +107,31 @@ serve(async (req) => {
         .getPublicUrl(video.demo_video_path)
       console.log('Demo URL:', demoUrl)
 
-      // Create second asset
-      const secondAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
+      // Create the combined asset directly by passing both URLs as input
+      const combinedAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${BASIC_AUTH}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          input: demoUrl,
+          input: [avatarUrl, demoUrl],
           playback_policy: ['public']
         })
       })
 
-      if (!secondAssetResponse.ok) {
-        throw new Error(`Failed to create second asset: ${await secondAssetResponse.text()}`)
+      if (!combinedAssetResponse.ok) {
+        const errorText = await combinedAssetResponse.text()
+        console.error('Combined asset creation failed with response:', errorText)
+        throw new Error(`Failed to create combined asset: ${errorText}`)
       }
 
-      const secondAsset = await secondAssetResponse.json()
-      console.log('Second asset created:', secondAsset)
+      finalAsset = await combinedAssetResponse.json()
+      console.log('Combined asset created:', finalAsset)
 
-      // Wait for second asset to be ready
-      await waitForAssetReady(secondAsset.data.id)
-      console.log('Second asset is ready')
-
-      // Create composition to combine videos
-      const compositionResponse = await fetch('https://api.mux.com/video/v1/compositions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${BASIC_AUTH}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          timeline: {
-            tracks: [
-              {
-                type: "video",
-                clips: [
-                  {
-                    "asset_id": firstAsset.data.id,
-                    "start_time": 0,
-                    "duration": null // Use full duration
-                  },
-                  {
-                    "asset_id": secondAsset.data.id,
-                    "start_time": 0,
-                    "duration": null // Use full duration
-                  }
-                ]
-              }
-            ]
-          },
-          output: {
-            playback_policy: ["public"]
-          }
-        })
-      })
-
-      if (!compositionResponse.ok) {
-        const errorText = await compositionResponse.text()
-        console.error('Composition creation failed with response:', errorText)
-        throw new Error(`Failed to create composition: ${errorText}`)
-      }
-
-      finalAsset = await compositionResponse.json()
-      console.log('Composition created:', finalAsset)
-
-      // Wait for the composition to be ready
-      await waitForAssetReady(finalAsset.data.asset_id)
-      console.log('Composition is ready')
+      // Wait for the combined asset to be ready
+      await waitForAssetReady(finalAsset.data.id)
+      console.log('Combined asset is ready')
     }
 
     // Update video record
