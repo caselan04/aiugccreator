@@ -5,13 +5,30 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Copy, CheckCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface HookResult {
+  id: number;
+  hook: string;
+  timestamp: string;
+  description: string;
+}
 
 const HookGenerator = () => {
   const [productDescription, setProductDescription] = useState("");
   const [generatedHook, setGeneratedHook] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hookResults, setHookResults] = useState<HookResult[]>([]);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
   const { toast } = useToast();
 
   const generateHook = async () => {
@@ -34,6 +51,14 @@ const HookGenerator = () => {
         throw error;
       }
 
+      const newHook: HookResult = {
+        id: Date.now(),
+        hook: data.hook,
+        timestamp: new Date().toLocaleString(),
+        description: productDescription,
+      };
+
+      setHookResults(prev => [newHook, ...prev]);
       setGeneratedHook(data.hook);
       toast({
         title: "Success",
@@ -48,6 +73,24 @@ const HookGenerator = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string, id: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      toast({
+        title: "Copied!",
+        description: "Hook copied to clipboard",
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy text",
+        variant: "destructive",
+      });
     }
   };
 
@@ -98,6 +141,48 @@ const HookGenerator = () => {
                 </div>
               )}
             </div>
+
+            {hookResults.length > 0 && (
+              <div className="mt-8 bg-white rounded-lg shadow-sm">
+                <h2 className="text-xl font-semibold p-6 border-b">Generated Hooks History</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Hook</TableHead>
+                      <TableHead>Time Generated</TableHead>
+                      <TableHead className="w-[100px]">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {hookResults.map((result) => (
+                      <TableRow key={result.id}>
+                        <TableCell className="max-w-[200px] truncate">
+                          {result.description}
+                        </TableCell>
+                        <TableCell>{result.hook}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {result.timestamp}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onPress={() => copyToClipboard(result.hook, result.id)}
+                          >
+                            {copiedId === result.id ? (
+                              <CheckCheck className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
         </main>
       </div>
