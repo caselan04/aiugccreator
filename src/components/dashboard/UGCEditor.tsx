@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Plus, Trash2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -28,6 +28,7 @@ const UGCEditor = () => {
   const [selectedDemoVideo, setSelectedDemoVideo] = useState<DemoVideo | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [showingDemo, setShowingDemo] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   
   const itemsPerPage = 33;
@@ -202,6 +203,51 @@ const UGCEditor = () => {
     setSelectedDemoVideo(null);
   };
 
+  const handleDeleteDemo = async (demo: DemoVideo, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent video selection when clicking delete
+    if (isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('demo_videos')
+        .remove([demo.file_path]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('demo_videos')
+        .delete()
+        .eq('id', demo.id);
+
+      if (dbError) throw dbError;
+
+      // Update UI
+      if (selectedDemoVideo?.id === demo.id) {
+        setSelectedDemoVideo(null);
+      }
+      setDemoVideos(demoVideos.filter(v => v.id !== demo.id));
+
+      toast({
+        title: "Success",
+        description: "Demo video deleted successfully"
+      });
+
+    } catch (error) {
+      console.error('Error deleting demo video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete demo video",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
@@ -333,30 +379,41 @@ const UGCEditor = () => {
               {demoVideos.length > 0 && (
                 <div className="mt-4 grid grid-cols-6 gap-2">
                   {demoVideos.map((demo) => (
-                    <button
+                    <div
                       key={demo.id}
-                      className={`aspect-[9/16] rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden ${
-                        selectedDemoVideo?.id === demo.id ? 'ring-2 ring-primary ring-offset-2' : ''
-                      }`}
-                      onClick={() => setSelectedDemoVideo(demo)}
+                      className="group relative aspect-[9/16]"
                     >
-                      <video 
-                        src={demo.url}
-                        className="w-full h-full object-cover"
-                        preload="metadata"
-                        muted
-                        playsInline
-                        controls={false}
-                        onEnded={(e) => {
-                          if (selectedDemoVideo) {
-                            e.currentTarget.classList.add('hidden');
-                            const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
-                            demoVideo?.classList.remove('hidden');
-                            demoVideo?.play();
-                          }
-                        }}
-                      />
-                    </button>
+                      <button
+                        className={`w-full h-full rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden ${
+                          selectedDemoVideo?.id === demo.id ? 'ring-2 ring-primary ring-offset-2' : ''
+                        }`}
+                        onClick={() => setSelectedDemoVideo(demo)}
+                      >
+                        <video 
+                          src={demo.url}
+                          className="w-full h-full object-cover"
+                          preload="metadata"
+                          muted
+                          playsInline
+                          controls={false}
+                          onEnded={(e) => {
+                            if (selectedDemoVideo) {
+                              e.currentTarget.classList.add('hidden');
+                              const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
+                              demoVideo?.classList.remove('hidden');
+                              demoVideo?.play();
+                            }
+                          }}
+                        />
+                      </button>
+                      <button
+                        onClick={(e) => handleDeleteDemo(demo, e)}
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        disabled={isDeleting}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
