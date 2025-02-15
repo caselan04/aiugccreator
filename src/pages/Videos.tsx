@@ -8,13 +8,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type Video = {
   id: string;
@@ -124,79 +123,66 @@ const Videos = () => {
                 </Button>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Hook Text</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
-                          Loading...
-                        </TableCell>
-                      </TableRow>
-                    ) : videos?.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-neutral-500">
-                          No videos found. Create your first video now!
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      videos?.map((video) => (
-                        <TableRow key={video.id}>
-                          <TableCell className="font-medium">
-                            {video.title || "Untitled"}
-                          </TableCell>
-                          <TableCell>{video.hook_text || "No hook text"}</TableCell>
-                          <TableCell>
-                            {new Date(video.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                video.status === "completed"
-                                  ? "bg-green-100 text-green-700"
-                                  : video.status === "processing"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {video.status}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              {video.status === "completed" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onPress={() => setSelectedVideo(video)}
-                                >
-                                  <Play className="w-4 h-4" />
-                                </Button>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onPress={() => handleDelete(video.id)}
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+              {isLoading ? (
+                <div className="text-center py-8">Loading...</div>
+              ) : videos?.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-8 text-neutral-500">
+                    No videos found. Create your first video now!
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {videos?.map((video) => (
+                    <Card key={video.id} className="overflow-hidden">
+                      <CardHeader>
+                        <CardTitle className="text-lg">
+                          {video.title || "Untitled"}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="text-sm text-neutral-600">
+                          {video.hook_text || "No hook text"}
+                        </div>
+                        <div className="text-sm text-neutral-500">
+                          Created: {new Date(video.created_at).toLocaleDateString()}
+                        </div>
+                        <div>
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              video.status === "completed"
+                                ? "bg-green-100 text-green-700"
+                                : video.status === "processing"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {video.status}
+                          </span>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-2 border-t bg-neutral-50 p-4">
+                        {video.status === "completed" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onPress={() => setSelectedVideo(video)}
+                          >
+                            <Play className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onPress={() => handleDelete(video.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              )}
 
               {selectedVideo && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-8 z-50">
