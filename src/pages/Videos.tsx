@@ -25,6 +25,7 @@ type Video = {
   status: 'processing' | 'completed' | 'failed';
   file_path: string;
   avatar_video_path: string;
+  demo_video_path?: string;
   error_message?: string;
   font_style?: 'sans' | 'serif' | 'mono';
   hook_position?: 'top' | 'middle' | 'bottom';
@@ -185,7 +186,32 @@ const Videos = () => {
                         src={`${supabase.storage.from('aiugcavatars').getPublicUrl(selectedVideo.avatar_video_path).data.publicUrl}`}
                         controls
                         className="w-full h-full object-contain"
+                        onEnded={(e) => {
+                          if (selectedVideo.demo_video_path) {
+                            e.currentTarget.classList.add('hidden');
+                            const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
+                            if (demoVideo) {
+                              demoVideo.classList.remove('hidden');
+                              demoVideo.play();
+                            }
+                          }
+                        }}
                       />
+                      {selectedVideo.demo_video_path && (
+                        <video
+                          src={`${supabase.storage.from('demo_videos').getPublicUrl(selectedVideo.demo_video_path).data.publicUrl}`}
+                          controls
+                          className="w-full h-full object-contain hidden"
+                          onEnded={(e) => {
+                            e.currentTarget.classList.add('hidden');
+                            const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
+                            if (mainVideo) {
+                              mainVideo.classList.remove('hidden');
+                              mainVideo.play();
+                            }
+                          }}
+                        />
+                      )}
                       {selectedVideo.hook_text && (
                         <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
                           selectedVideo.hook_position === 'top' ? 'top-1/4' :

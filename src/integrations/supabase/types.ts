@@ -47,6 +47,7 @@ export type Database = {
           avatar_video_path: string | null
           content_type: string | null
           created_at: string
+          demo_video_path: string | null
           error_message: string | null
           file_name: string
           file_path: string
@@ -63,6 +64,7 @@ export type Database = {
           avatar_video_path?: string | null
           content_type?: string | null
           created_at?: string
+          demo_video_path?: string | null
           error_message?: string | null
           file_name: string
           file_path: string
@@ -79,6 +81,7 @@ export type Database = {
           avatar_video_path?: string | null
           content_type?: string | null
           created_at?: string
+          demo_video_path?: string | null
           error_message?: string | null
           file_name?: string
           file_path?: string
