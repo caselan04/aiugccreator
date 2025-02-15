@@ -235,7 +235,7 @@ const UGCEditor = () => {
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-8">
             <div>
-              <h2 className="text-base font-medium mb-4 text-neutral-800">1. Hook</h2>
+              <h2 className="text-base font-medium mb-4 text-neutral-800">1. Text</h2>
               <div className="space-y-4">
                 <div className="flex gap-4 items-center mb-2">
                   <Select value={selectedFont} onValueChange={value => setSelectedFont(value as FontOption)}>
