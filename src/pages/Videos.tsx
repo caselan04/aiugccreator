@@ -84,7 +84,7 @@ const Videos = () => {
             <div className="max-w-[1400px] mx-auto">
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-semibold text-neutral-900">My Videos</h1>
-                <Button onClick={() => navigate("/dashboard")}>
+                <Button onPress={() => navigate("/dashboard")}>
                   Create New Video
                 </Button>
               </div>
@@ -142,7 +142,7 @@ const Videos = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => setSelectedVideo(video)}
+                                  onPress={() => setSelectedVideo(video)}
                                 >
                                   <Play className="w-4 h-4" />
                                 </Button>
@@ -150,7 +150,7 @@ const Videos = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleDelete(video.id)}
+                                onPress={() => handleDelete(video.id)}
                               >
                                 <Trash2 className="w-4 h-4 text-red-500" />
                               </Button>
@@ -176,7 +176,7 @@ const Videos = () => {
                     <div className="flex justify-end mt-4">
                       <Button
                         variant="outline"
-                        onClick={() => setSelectedVideo(null)}
+                        onPress={() => setSelectedVideo(null)}
                       >
                         Close
                       </Button>

@@ -20,7 +20,7 @@ const DashboardSidebar = () => {
       {!collapsed && (
         <div
           className="fixed inset-0 bg-black/20 z-20 lg:hidden"
-          onClick={() => setCollapsed(true)}
+          onPress={() => setCollapsed(true)}
         />
       )}
 
@@ -41,7 +41,7 @@ const DashboardSidebar = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setCollapsed(true)}
+              onPress={() => setCollapsed(true)}
               className="lg:hidden"
             >
               <X className="w-5 h-5" />
@@ -96,7 +96,7 @@ const DashboardSidebar = () => {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setCollapsed(false)}
+        onPress={() => setCollapsed(false)}
         className={cn(
           "fixed top-4 left-4 z-40 lg:hidden",
           !collapsed && "hidden"

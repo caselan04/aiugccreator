@@ -1,21 +1,30 @@
-
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const SidebarContext = React.createContext<{
-  isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
-}>({
-  isCollapsed: false,
-  setIsCollapsed: () => {},
+type SidebarContextType = {
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+};
+
+const SidebarContext = React.createContext<SidebarContextType>({
+  collapsed: false,
+  setCollapsed: () => {},
 });
 
+export const useSidebarContext = () => {
+  const context = React.useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebarContext must be used within a SidebarProvider");
+  }
+  return context;
+};
+
 export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [collapsed, setCollapsed] = React.useState(false);
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed }}>
+    <SidebarContext.Provider value={{ collapsed, setCollapsed }}>
       {children}
     </SidebarContext.Provider>
   );
@@ -25,13 +34,13 @@ export const Sidebar = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const { isCollapsed } = React.useContext(SidebarContext);
+  const { collapsed } = React.useContext(SidebarContext);
   return (
     <div
       ref={ref}
       className={cn(
         "border-r bg-white transition-all duration-300",
-        isCollapsed ? "w-16" : "w-64",
+        collapsed ? "w-16" : "w-64",
         className
       )}
       {...props}
