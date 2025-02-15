@@ -16,7 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile } from '@ffmpeg/util';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -52,7 +53,7 @@ const UGCEditor = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
-  const ffmpeg = useMemo(() => createFFmpeg({ 
+  const ffmpeg = useMemo(() => new FFmpeg({ 
     log: true,
     progress: ({ ratio }) => {
       setProgress(ratio * 100);
@@ -624,7 +625,7 @@ const UGCEditor = () => {
               variant="default" 
               className="w-full h-14 text-base font-medium"
               onPress={handleGenerateVideo}
-              disabled={isProcessing}
+              isDisabled={isProcessing}
             >
               {isProcessing ? 'Processing...' : 'Generate Video'}
             </Button>
