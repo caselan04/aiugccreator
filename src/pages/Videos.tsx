@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -141,6 +142,26 @@ const Videos = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
+                        {video.status === "completed" && (
+                          <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden relative">
+                            <video
+                              src={`${supabase.storage.from('aiugcavatars').getPublicUrl(video.avatar_video_path).data.publicUrl}`}
+                              controls
+                              className="w-full h-full object-contain"
+                            />
+                            {video.hook_text && (
+                              <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
+                                video.hook_position === 'top' ? 'top-1/4' :
+                                video.hook_position === 'middle' ? 'top-1/2 -translate-y-1/2' :
+                                'bottom-1/4'
+                              }`}>
+                                <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(video.font_style)}`}>
+                                  {video.hook_text}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         <div className="text-sm text-neutral-600">
                           {video.hook_text || "No hook text"}
                         </div>
@@ -163,13 +184,30 @@ const Videos = () => {
                       </CardContent>
                       <CardFooter className="flex justify-end gap-2 border-t bg-neutral-50 p-4">
                         {video.status === "completed" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onPress={() => setSelectedVideo(video)}
-                          >
-                            <Play className="w-4 h-4" />
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onPress={() => handleDownload(
+                                supabase.storage.from('aiugcavatars').getPublicUrl(video.avatar_video_path).data.publicUrl,
+                                `ugc-${video.id}.mp4`
+                              )}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            {video.demo_video_path && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onPress={() => handleDownload(
+                                  supabase.storage.from('demo_videos').getPublicUrl(video.demo_video_path!).data.publicUrl,
+                                  `demo-${video.id}.mp4`
+                                )}
+                              >
+                                <Download className="w-4 h-4" /> Demo
+                              </Button>
+                            )}
+                          </>
                         )}
                         <Button
                           size="sm"
