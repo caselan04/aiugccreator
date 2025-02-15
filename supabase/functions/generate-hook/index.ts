@@ -9,12 +9,23 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
+    // Verify content type
+    if (req.headers.get("content-type") !== "application/json") {
+      throw new Error("Invalid content type. Expected application/json");
+    }
+
     const { prompt } = await req.json();
+    if (!prompt) {
+      throw new Error("Prompt is required");
+    }
+
+    console.log("Received prompt:", prompt);
 
     // Construct the system prompt for hook generation
     const systemPrompt = `You are an expert TikTok content creator specializing in creating engaging hooks (first 3 seconds of content). 
@@ -24,11 +35,17 @@ serve(async (req) => {
 
     const userPrompt = `Product/Service Description: ${prompt}\n\nCreate a TikTok hook that's conversational and engaging.`;
 
-    // Using the Deepseek R1 model
+    // Check if REPLICATE_API_KEY is available
+    const REPLICATE_API_KEY = Deno.env.get("REPLICATE_API_KEY");
+    if (!REPLICATE_API_KEY) {
+      throw new Error("REPLICATE_API_KEY is not configured");
+    }
+
+    console.log("Making request to Replicate API...");
     const response = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
-        Authorization: `Token ${Deno.env.get("REPLICATE_API_KEY")}`,
+        Authorization: `Token ${REPLICATE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -44,43 +61,68 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("Replicate API error:", errorData);
+      throw new Error(`Replicate API error: ${response.status}`);
+    }
+
     const prediction = await response.json();
     console.log("Replicate API response:", prediction);
 
-    // First get the prediction ID
-    const predictionId = prediction.id;
-    
+    if (!prediction.id) {
+      throw new Error("Invalid response from Replicate API");
+    }
+
     // Poll for the result
     let result = prediction;
-    while (result.status !== "succeeded" && result.status !== "failed") {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+    let attempts = 0;
+    const maxAttempts = 30; // 30 seconds timeout
+
+    while (result.status !== "succeeded" && result.status !== "failed" && attempts < maxAttempts) {
+      attempts++;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       const pollResponse = await fetch(
-        `https://api.replicate.com/v1/predictions/${predictionId}`,
+        `https://api.replicate.com/v1/predictions/${prediction.id}`,
         {
           headers: {
-            Authorization: `Token ${Deno.env.get("REPLICATE_API_KEY")}`,
+            Authorization: `Token ${REPLICATE_API_KEY}`,
             "Content-Type": "application/json",
           },
         }
       );
+
+      if (!pollResponse.ok) {
+        console.error("Polling error:", await pollResponse.text());
+        throw new Error(`Polling error: ${pollResponse.status}`);
+      }
+
       result = await pollResponse.json();
       console.log("Polling status:", result.status);
     }
 
-    if (result.status === "failed") {
-      throw new Error("Failed to generate hook");
+    if (result.status === "failed" || attempts >= maxAttempts) {
+      throw new Error(result.error || "Failed to generate hook or timeout reached");
     }
 
-    // The output will be in result.output
+    // Handle the output
     const generatedHook = Array.isArray(result.output) ? result.output[0] : result.output;
-    
+    if (!generatedHook) {
+      throw new Error("No hook generated");
+    }
+
+    console.log("Generated hook:", generatedHook);
     return new Response(JSON.stringify({ hook: generatedHook }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error('Error in generate-hook function:', error);
+    console.error("Error in generate-hook function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
