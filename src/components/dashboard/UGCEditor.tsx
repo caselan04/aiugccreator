@@ -355,7 +355,8 @@ const UGCEditor = () => {
           file_name: selectedVideo.path,
           file_path: selectedVideo.path,
           user_id: session.user.id,
-          status: 'completed' // Since we're using existing avatar video
+          status: 'completed', // Since we're using existing avatar video
+          demo_video_path: selectedDemoVideo?.file_path // Add demo video path if selected
         })
         .select()
         .single();
