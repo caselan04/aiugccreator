@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -313,6 +312,81 @@ const UGCEditor = () => {
     }
   };
 
+  const handleGenerateVideo = async () => {
+    try {
+      if (!selectedVideo) {
+        toast({
+          title: "Error",
+          description: "Please select an AI avatar first",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!hookText) {
+        toast({
+          title: "Error",
+          description: "Please enter hook text first",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to generate videos",
+          variant: "destructive"
+        });
+        navigate("/auth");
+        return;
+      }
+
+      // Save the video details to the database
+      const { data: video, error } = await supabase
+        .from('videos')
+        .insert({
+          title: hookText.substring(0, 50), // Use first 50 chars of hook as title
+          hook_text: hookText,
+          avatar_video_path: selectedVideo.path,
+          font_style: selectedFont,
+          hook_position: hookPosition,
+          file_name: selectedVideo.path,
+          file_path: selectedVideo.path,
+          user_id: session.user.id,
+          status: 'completed' // Since we're using existing avatar video
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving video:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save video",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Video saved successfully! View it in My Videos.",
+      });
+
+      // Optionally navigate to the videos page
+      navigate("/videos");
+    } catch (error) {
+      console.error('Error generating video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate video",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
@@ -463,9 +537,7 @@ const UGCEditor = () => {
             <Button 
               variant="default" 
               className="w-full h-14 text-base font-medium"
-              onPress={() => {
-                console.log('Generate video clicked');
-              }}
+              onPress={handleGenerateVideo}
             >
               Generate Video
             </Button>
