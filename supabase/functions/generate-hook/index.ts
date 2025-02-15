@@ -119,6 +119,17 @@ serve(async (req) => {
       throw new Error("No hook generated");
     }
 
+    // Clean up the output by removing the <think> portion and any extra whitespace
+    generatedHook = generatedHook
+      .replace(/<think>[\s\S]*?<\/think>/g, '') // Remove <think> tags and their content
+      .replace(/<[^>]*>/g, '') // Remove any other HTML-like tags
+      .trim(); // Remove extra whitespace
+
+    if (!generatedHook) {
+      console.error("Empty hook after cleanup:", result);
+      throw new Error("No valid hook content generated");
+    }
+
     console.log("Generated hook:", generatedHook);
     return new Response(JSON.stringify({ hook: generatedHook }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
