@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -495,9 +494,9 @@ const UGCEditor = () => {
                   )}
                   {hookText && !showingDemo && (
                     <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
-                      hookPosition === 'top' ? 'top-8' :
+                      hookPosition === 'top' ? 'top-1/4' :
                       hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' :
-                      'bottom-8'
+                      'bottom-1/4'
                     }`}>
                       <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedFont)}`}>
                         {hookText}
