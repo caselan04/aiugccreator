@@ -335,7 +335,7 @@ const UGCEditor = () => {
                   {demoVideos.map((demo) => (
                     <button
                       key={demo.id}
-                      className={`aspect-video rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden ${
+                      className={`aspect-[9/16] rounded-xl bg-white hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all overflow-hidden ${
                         selectedDemoVideo?.id === demo.id ? 'ring-2 ring-primary ring-offset-2' : ''
                       }`}
                       onClick={() => setSelectedDemoVideo(demo)}
