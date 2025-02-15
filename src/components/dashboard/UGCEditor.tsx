@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,18 +7,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { FileTrigger } from "react-aria-components";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type HookPosition = 'top' | 'middle' | 'bottom';
-type DemoVideo = {
-  id: string;
-  file_path: string;
-  file_name: string;
-  url?: string;
-};
+type FontOption = 'sans' | 'serif' | 'mono';
 
 const UGCEditor = () => {
   const [hookText, setHookText] = useState("");
   const [hookPosition, setHookPosition] = useState<HookPosition>('top');
+  const [selectedFont, setSelectedFont] = useState<FontOption>('sans');
   const [selectedTab, setSelectedTab] = useState("Templates");
   const [currentPage, setCurrentPage] = useState(1);
   const [avatarVideos, setAvatarVideos] = useState<{ path: string; url: string }[]>([]);
@@ -249,6 +251,17 @@ const UGCEditor = () => {
     }
   };
 
+  const getFontClass = (font: FontOption) => {
+    switch (font) {
+      case 'serif':
+        return 'font-serif';
+      case 'mono':
+        return 'font-mono';
+      default:
+        return 'font-sans';
+    }
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
@@ -259,8 +272,23 @@ const UGCEditor = () => {
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">1. Hook</h2>
               <div className="space-y-4">
+                <div className="flex gap-4 items-center mb-2">
+                  <Select
+                    value={selectedFont}
+                    onValueChange={(value) => setSelectedFont(value as FontOption)}
+                  >
+                    <SelectTrigger className="w-[180px] bg-white">
+                      <SelectValue placeholder="Select font" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sans">Sans-serif</SelectItem>
+                      <SelectItem value="serif">Serif</SelectItem>
+                      <SelectItem value="mono">Monospace</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Textarea
-                  className="min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none"
+                  className={`min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`}
                   placeholder="edit ur text here"
                   value={hookText}
                   onChange={(e) => setHookText(e.target.value)}
@@ -389,7 +417,7 @@ const UGCEditor = () => {
                       >
                         <video 
                           src={demo.url}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                           preload="metadata"
                           muted
                           playsInline
@@ -464,7 +492,7 @@ const UGCEditor = () => {
                       hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' :
                       'bottom-8'
                     }`}>
-                      <div className="text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full">
+                      <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedFont)}`}>
                         {hookText}
                       </div>
                     </div>
