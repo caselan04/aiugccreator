@@ -57,6 +57,27 @@ const UGCEditor = () => {
   const ffmpeg = useMemo(() => new FFmpeg(), []);
 
   useEffect(() => {
+    const loadFFmpeg = async () => {
+      try {
+        if (!ffmpeg.loaded) {
+          setProcessingStep('Loading FFmpeg...');
+          await ffmpeg.load();
+          console.log('FFmpeg loaded successfully');
+        }
+      } catch (error) {
+        console.error('Error loading FFmpeg:', error);
+        toast({
+          title: "Error",
+          description: "Failed to initialize video processor",
+          variant: "destructive"
+        });
+      }
+    };
+
+    loadFFmpeg();
+  }, [ffmpeg]);
+
+  useEffect(() => {
     ffmpeg.on('log', ({ message }) => {
       console.log('FFmpeg Log:', message);
     });
@@ -386,64 +407,53 @@ const UGCEditor = () => {
 
       if (error) throw error;
 
-      // Load FFmpeg
-      setProcessingStep('Loading FFmpeg...');
+      // Ensure FFmpeg is loaded
       if (!ffmpeg.loaded) {
+        setProcessingStep('Loading FFmpeg...');
         await ffmpeg.load();
       }
-      console.log('FFmpeg loaded successfully');
 
-      // Download the avatar video
+      // Download and process avatar video
       setProcessingStep('Processing avatar video...');
-      console.log('Downloading avatar video from:', selectedVideo.url);
+      console.log('Downloading avatar video:', selectedVideo.url);
       const avatarResponse = await fetch(selectedVideo.url);
       const avatarBlob = await avatarResponse.blob();
       const avatarBuffer = await fetchFile(avatarBlob);
-      console.log('Avatar video downloaded, size:', avatarBlob.size);
-      
-      // Write the avatar video to FFmpeg's virtual filesystem
-      await ffmpeg.writeFile('avatar.mp4', avatarBuffer);
-      console.log('Avatar video written to FFmpeg filesystem');
 
-      // Add text overlay to the avatar video
+      await ffmpeg.writeFile('input.mp4', avatarBuffer);
+      console.log('Avatar video written to FFmpeg');
+
+      // Add text overlay
       setProcessingStep('Adding text overlay...');
-      const textColor = 'white';
-      const fontSize = 24;
       const yPosition = hookPosition === 'top' ? '50' : 
-                       hookPosition === 'middle' ? '(h-text_h)/2' : 
-                       'h-text_h-50';
-      
-      console.log('Executing FFmpeg command for text overlay...');
+                       hookPosition === 'middle' ? '(h/2)' : 
+                       'h-60';
+
       await ffmpeg.exec([
-        '-i', 'avatar.mp4',
-        '-vf', `drawtext=text='${hookText}':fontsize=${fontSize}:fontcolor=${textColor}:x=(w-text_w)/2:y=${yPosition}`,
+        '-i', 'input.mp4',
+        '-vf', `drawtext=text='${hookText}':fontsize=24:fontcolor=white:x=(w-text_w)/2:y=${yPosition}`,
         '-c:a', 'copy',
-        'avatar_with_text.mp4'
+        'output.mp4'
       ]);
-      console.log('Text overlay added successfully');
+      console.log('Text overlay completed');
 
-      let finalVideoPath = 'avatar_with_text.mp4';
+      let finalVideoPath = 'output.mp4';
 
-      // If there's a demo video, merge them
+      // Handle demo video if present
       if (selectedDemoVideo) {
         setProcessingStep('Processing demo video...');
-        console.log('Downloading demo video from:', selectedDemoVideo.url);
+        console.log('Downloading demo video:', selectedDemoVideo.url);
         const demoResponse = await fetch(selectedDemoVideo.url!);
         const demoBlob = await demoResponse.blob();
         const demoBuffer = await fetchFile(demoBlob);
-        console.log('Demo video downloaded, size:', demoBlob.size);
-        
+
         await ffmpeg.writeFile('demo.mp4', demoBuffer);
-        console.log('Demo video written to FFmpeg filesystem');
         
-        // Create a concat file
-        await ffmpeg.writeFile('concat.txt', 
-          'file avatar_with_text.mp4\nfile demo.mp4'
-        );
-        
-        // Concatenate videos
+        // Create concatenation list
+        const concatContent = 'file output.mp4\nfile demo.mp4';
+        await ffmpeg.writeFile('concat.txt', concatContent);
+
         setProcessingStep('Merging videos...');
-        console.log('Executing FFmpeg command for video merge...');
         await ffmpeg.exec([
           '-f', 'concat',
           '-safe', '0',
@@ -456,26 +466,22 @@ const UGCEditor = () => {
         finalVideoPath = 'final.mp4';
       }
 
-      // Read the final video
+      // Read the processed video
       setProcessingStep('Preparing final video...');
-      console.log('Reading final video from FFmpeg filesystem');
-      const outputData = await ffmpeg.readFile(finalVideoPath);
-      const finalBlob = new Blob([outputData], { type: 'video/mp4' });
+      const processedData = await ffmpeg.readFile(finalVideoPath);
+      const finalBlob = new Blob([processedData], { type: 'video/mp4' });
       console.log('Final video size:', finalBlob.size);
 
-      // Upload to Supabase storage
+      // Upload to Supabase
       setProcessingStep('Uploading to storage...');
       const finalFileName = `${crypto.randomUUID()}.mp4`;
-      console.log('Uploading to Supabase storage as:', finalFileName);
       const { error: uploadError } = await supabase.storage
         .from('aiugcavatars')
         .upload(finalFileName, finalBlob);
 
       if (uploadError) throw uploadError;
-      console.log('Upload successful');
 
       // Update video record
-      setProcessingStep('Finalizing...');
       const { error: updateError } = await supabase
         .from('videos')
         .update({
