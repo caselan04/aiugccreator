@@ -75,15 +75,6 @@ serve(async (req) => {
 
     console.log('Avatar URL:', avatarUrl)
 
-    let demoUrl = null
-    if (video.demo_video_path) {
-      const { data: { publicUrl } } = supabase.storage
-        .from('demo_videos')
-        .getPublicUrl(video.demo_video_path)
-      demoUrl = publicUrl
-      console.log('Demo URL:', demoUrl)
-    }
-
     // Create first asset
     const firstAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
       method: 'POST',
@@ -110,7 +101,12 @@ serve(async (req) => {
 
     let finalAsset = firstAsset
 
-    if (demoUrl) {
+    if (video.demo_video_path) {
+      const { data: { publicUrl: demoUrl } } = supabase.storage
+        .from('demo_videos')
+        .getPublicUrl(video.demo_video_path)
+      console.log('Demo URL:', demoUrl)
+
       // Create second asset
       const secondAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
         method: 'POST',
@@ -135,30 +131,51 @@ serve(async (req) => {
       await waitForAssetReady(secondAsset.data.id)
       console.log('Second asset is ready')
 
-      // Create master asset using asset IDs
-      const masterAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
+      // Create composition to combine videos
+      const compositionResponse = await fetch('https://api.mux.com/video/v1/compositions', {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${BASIC_AUTH}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          input: [
-            { url: `mux://assets/${firstAsset.data.id}` },
-            { url: `mux://assets/${secondAsset.data.id}` }
-          ],
-          playback_policy: ['public']
+          timeline: {
+            tracks: [
+              {
+                type: "video",
+                clips: [
+                  {
+                    "asset_id": firstAsset.data.id,
+                    "start_time": 0,
+                    "duration": null // Use full duration
+                  },
+                  {
+                    "asset_id": secondAsset.data.id,
+                    "start_time": 0,
+                    "duration": null // Use full duration
+                  }
+                ]
+              }
+            ]
+          },
+          output: {
+            playback_policy: ["public"]
+          }
         })
       })
 
-      if (!masterAssetResponse.ok) {
-        const errorText = await masterAssetResponse.text()
-        console.error('Master asset creation failed with response:', errorText)
-        throw new Error(`Failed to create master asset: ${errorText}`)
+      if (!compositionResponse.ok) {
+        const errorText = await compositionResponse.text()
+        console.error('Composition creation failed with response:', errorText)
+        throw new Error(`Failed to create composition: ${errorText}`)
       }
 
-      finalAsset = await masterAssetResponse.json()
-      console.log('Master asset created:', finalAsset)
+      finalAsset = await compositionResponse.json()
+      console.log('Composition created:', finalAsset)
+
+      // Wait for the composition to be ready
+      await waitForAssetReady(finalAsset.data.asset_id)
+      console.log('Composition is ready')
     }
 
     // Update video record
