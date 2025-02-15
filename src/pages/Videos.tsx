@@ -158,19 +158,6 @@ const Videos = () => {
                         <div className="text-sm text-neutral-500">
                           Created: {new Date(video.created_at).toLocaleDateString()}
                         </div>
-                        <div>
-                          <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              video.status === "completed"
-                                ? "bg-green-100 text-green-700"
-                                : video.status === "processing"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {video.status}
-                          </span>
-                        </div>
                       </CardContent>
                       <CardFooter className="flex justify-end gap-2 border-t bg-neutral-50 p-4">
                         {video.status === "completed" && (
