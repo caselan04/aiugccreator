@@ -11,6 +11,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
+import Videos from "./pages/Videos";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -34,6 +35,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/videos" element={<Videos />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
