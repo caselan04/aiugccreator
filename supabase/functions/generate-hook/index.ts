@@ -42,11 +42,40 @@ serve(async (req) => {
     });
 
     const prediction = await response.json();
+    console.log("Replicate API response:", prediction);
+
+    // First get the prediction ID
+    const predictionId = prediction.id;
     
-    return new Response(JSON.stringify({ hook: prediction.output }), {
+    // Poll for the result
+    let result = prediction;
+    while (result.status !== "succeeded" && result.status !== "failed") {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+      const pollResponse = await fetch(
+        `https://api.replicate.com/v1/predictions/${predictionId}`,
+        {
+          headers: {
+            Authorization: `Token ${Deno.env.get("REPLICATE_API_KEY")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      result = await pollResponse.json();
+      console.log("Polling status:", result.status);
+    }
+
+    if (result.status === "failed") {
+      throw new Error("Failed to generate hook");
+    }
+
+    // The output will be in result.output
+    const generatedHook = result.output;
+    
+    return new Response(JSON.stringify({ hook: generatedHook }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error('Error in generate-hook function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
