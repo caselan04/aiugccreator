@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const HookGenerator = () => {
   const [productDescription, setProductDescription] = useState("");
@@ -25,28 +26,21 @@ const HookGenerator = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        "https://pkcbkbtfwgoghldrdvfi.supabase.co/functions/v1/generate-hook",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: productDescription }),
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('generate-hook', {
+        body: { prompt: productDescription }
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to generate hook");
+      if (error) {
+        throw error;
       }
 
-      const data = await response.json();
       setGeneratedHook(data.hook);
       toast({
         title: "Success",
         description: "Hook generated successfully!",
       });
     } catch (error) {
+      console.error('Error generating hook:', error);
       toast({
         title: "Error",
         description: "Failed to generate hook. Please try again.",
