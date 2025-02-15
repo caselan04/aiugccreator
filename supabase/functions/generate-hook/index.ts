@@ -49,12 +49,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "3d0c1c6b4cdc16663a4f200710b8c08304af9ed77cbe59fbc32e27676feb5aab",
+        version: "deepseek-ai/deepseek-r1",
         input: {
           prompt: systemPrompt + "\n\n" + userPrompt,
-          max_tokens: 150,
-          temperature: 0.7,
-          top_p: 0.9,
+          max_tokens: 20480,
+          temperature: 0.1,
+          top_p: 1,
           presence_penalty: 0,
           frequency_penalty: 0
         },
