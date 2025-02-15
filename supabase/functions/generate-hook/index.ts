@@ -31,7 +31,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
+        version: "3d0c1c6b4cdc16663a4f200710b8c08304af9ed77cbe59fbc32e27676feb5aab",
         input: {
           prompt: systemPrompt + "\n\n" + userPrompt,
           temperature: 0.7,
