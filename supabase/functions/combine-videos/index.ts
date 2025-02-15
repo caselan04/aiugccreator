@@ -135,7 +135,7 @@ serve(async (req) => {
       await waitForAssetReady(secondAsset.data.id)
       console.log('Second asset is ready')
 
-      // Create master asset
+      // Create master asset using asset IDs
       const masterAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
         method: 'POST',
         headers: {
@@ -144,15 +144,17 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           input: [
-            `https://stream.mux.com/${firstAsset.data.playback_ids[0].id}.m3u8`,
-            `https://stream.mux.com/${secondAsset.data.playback_ids[0].id}.m3u8`
+            { url: `mux://assets/${firstAsset.data.id}` },
+            { url: `mux://assets/${secondAsset.data.id}` }
           ],
           playback_policy: ['public']
         })
       })
 
       if (!masterAssetResponse.ok) {
-        throw new Error(`Failed to create master asset: ${await masterAssetResponse.text()}`)
+        const errorText = await masterAssetResponse.text()
+        console.error('Master asset creation failed with response:', errorText)
+        throw new Error(`Failed to create master asset: ${errorText}`)
       }
 
       finalAsset = await masterAssetResponse.json()
