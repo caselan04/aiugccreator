@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -101,6 +102,9 @@ const UGCEditor = () => {
       }, {
         path: 'replicate-prediction-n6j4e9dmq5rme0cn1e4sa15nmc.mp4',
         url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-n6j4e9dmq5rme0cn1e4sa15nmc.mp4'
+      }, {
+        path: 'replicate-prediction-pxdhdts9bdrm80cn1era8xt3m4.mp4',
+        url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-pxdhdts9bdrm80cn1era8xt3m4.mp4'
       }];
 
       const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
