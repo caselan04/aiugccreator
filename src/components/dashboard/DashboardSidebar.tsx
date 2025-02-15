@@ -1,6 +1,8 @@
-import { Home, Video, Calendar, BarChart, Settings, HelpCircle } from "lucide-react";
+
+import { Home, Video, Calendar, BarChart, Settings, HelpCircle, User } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
+
 const menuItems = [{
   icon: Home,
   label: "Home",
@@ -18,6 +20,7 @@ const menuItems = [{
   label: "Campaigns",
   path: "/dashboard/campaigns"
 }];
+
 const bottomMenuItems = [{
   icon: Settings,
   label: "Settings",
@@ -26,7 +29,12 @@ const bottomMenuItems = [{
   icon: HelpCircle,
   label: "Support",
   path: "/dashboard/support"
+}, {
+  icon: User,
+  label: "Profile",
+  path: "/dashboard/profile"
 }];
+
 const DashboardSidebar = () => {
   return <Sidebar>
       <SidebarContent>
@@ -35,8 +43,7 @@ const DashboardSidebar = () => {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-semibold">L</span>
             </div>
-            <span className="text-xl font-semibold">ShotPixelAi
-          </span>
+            <span className="text-xl font-semibold">ShotPixelAi</span>
           </Link>
         </div>
 
@@ -74,4 +81,5 @@ const DashboardSidebar = () => {
       </SidebarContent>
     </Sidebar>;
 };
+
 export default DashboardSidebar;
