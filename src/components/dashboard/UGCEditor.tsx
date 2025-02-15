@@ -53,12 +53,13 @@ const UGCEditor = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
-  const ffmpeg = useMemo(() => new FFmpeg({ 
-    log: true,
-    progress: ({ ratio }) => {
-      setProgress(ratio * 100);
-    }
-  }), []);
+  const ffmpeg = useMemo(() => new FFmpeg(), []);
+
+  useEffect(() => {
+    ffmpeg.on('progress', ({ progress }) => {
+      setProgress(progress * 100);
+    });
+  }, [ffmpeg]);
 
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
@@ -387,10 +388,10 @@ const UGCEditor = () => {
       // Download the avatar video
       const avatarResponse = await fetch(selectedVideo.url);
       const avatarBlob = await avatarResponse.blob();
-      const avatarBuffer = await avatarBlob.arrayBuffer();
+      const avatarBuffer = await fetchFile(avatarBlob);
       
       // Write the avatar video to FFmpeg's virtual filesystem
-      ffmpeg.FS('writeFile', 'avatar.mp4', new Uint8Array(avatarBuffer));
+      await ffmpeg.writeFile('avatar.mp4', avatarBuffer);
 
       // Add text overlay to the avatar video
       const textColor = 'white';
@@ -399,11 +400,11 @@ const UGCEditor = () => {
                        hookPosition === 'middle' ? '(h-text_h)/2' : 
                        'h-text_h-50';
                        
-      await ffmpeg.run(
+      await ffmpeg.exec([
         '-i', 'avatar.mp4',
         '-vf', `drawtext=text='${hookText}':fontsize=${fontSize}:fontcolor=${textColor}:x=(w-text_w)/2:y=${yPosition}:fontfile=/font.ttf`,
         'avatar_with_text.mp4'
-      );
+      ]);
 
       let finalVideoPath = 'avatar_with_text.mp4';
 
@@ -411,30 +412,30 @@ const UGCEditor = () => {
       if (selectedDemoVideo) {
         const demoResponse = await fetch(selectedDemoVideo.url!);
         const demoBlob = await demoResponse.blob();
-        const demoBuffer = await demoBlob.arrayBuffer();
+        const demoBuffer = await fetchFile(demoBlob);
         
-        ffmpeg.FS('writeFile', 'demo.mp4', new Uint8Array(demoBuffer));
+        await ffmpeg.writeFile('demo.mp4', demoBuffer);
         
         // Create a concat file
-        ffmpeg.FS('writeFile', 'concat.txt', 
+        await ffmpeg.writeFile('concat.txt', 
           'file avatar_with_text.mp4\nfile demo.mp4'
         );
         
         // Concatenate videos
-        await ffmpeg.run(
+        await ffmpeg.exec([
           '-f', 'concat',
           '-safe', '0',
           '-i', 'concat.txt',
           '-c', 'copy',
           'final.mp4'
-        );
+        ]);
         
         finalVideoPath = 'final.mp4';
       }
 
       // Read the final video
-      const data = ffmpeg.FS('readFile', finalVideoPath);
-      const finalBlob = new Blob([data.buffer], { type: 'video/mp4' });
+      const outputData = await ffmpeg.readFile(finalVideoPath);
+      const finalBlob = new Blob([outputData], { type: 'video/mp4' });
 
       // Upload to Supabase storage
       const finalFileName = `${crypto.randomUUID()}.mp4`;
