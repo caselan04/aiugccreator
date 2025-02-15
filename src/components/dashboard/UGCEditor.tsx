@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { FileTrigger } from "react-aria-components";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -47,7 +49,15 @@ const UGCEditor = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [showingDemo, setShowingDemo] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const { toast } = useToast();
+  const ffmpeg = useMemo(() => createFFmpeg({ 
+    log: true,
+    progress: ({ ratio }) => {
+      setProgress(ratio * 100);
+    }
+  }), []);
 
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
@@ -346,7 +356,9 @@ const UGCEditor = () => {
         return;
       }
 
-      // Save the video details to the database
+      setIsProcessing(true);
+      
+      // Save initial video details to the database
       const { data: video, error } = await supabase
         .from('videos')
         .insert({
@@ -364,30 +376,83 @@ const UGCEditor = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error saving video:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save video",
-          variant: "destructive"
-        });
-        return;
+      if (error) throw error;
+
+      // Load FFmpeg
+      if (!ffmpeg.loaded) {
+        await ffmpeg.load();
       }
 
-      // Call the combine-videos function
-      const { error: combineError } = await supabase.functions.invoke('combine-videos', {
-        body: { videoId: video.id }
-      });
+      // Download the avatar video
+      const avatarResponse = await fetch(selectedVideo.url);
+      const avatarBlob = await avatarResponse.blob();
+      const avatarBuffer = await avatarBlob.arrayBuffer();
+      
+      // Write the avatar video to FFmpeg's virtual filesystem
+      ffmpeg.FS('writeFile', 'avatar.mp4', new Uint8Array(avatarBuffer));
 
-      if (combineError) {
-        console.error('Error combining videos:', combineError);
-        toast({
-          title: "Error",
-          description: "Failed to combine videos",
-          variant: "destructive"
-        });
-        return;
+      // Add text overlay to the avatar video
+      const textColor = 'white';
+      const fontSize = 24;
+      const yPosition = hookPosition === 'top' ? '50' : 
+                       hookPosition === 'middle' ? '(h-text_h)/2' : 
+                       'h-text_h-50';
+                       
+      await ffmpeg.run(
+        '-i', 'avatar.mp4',
+        '-vf', `drawtext=text='${hookText}':fontsize=${fontSize}:fontcolor=${textColor}:x=(w-text_w)/2:y=${yPosition}:fontfile=/font.ttf`,
+        'avatar_with_text.mp4'
+      );
+
+      let finalVideoPath = 'avatar_with_text.mp4';
+
+      // If there's a demo video, merge them
+      if (selectedDemoVideo) {
+        const demoResponse = await fetch(selectedDemoVideo.url!);
+        const demoBlob = await demoResponse.blob();
+        const demoBuffer = await demoBlob.arrayBuffer();
+        
+        ffmpeg.FS('writeFile', 'demo.mp4', new Uint8Array(demoBuffer));
+        
+        // Create a concat file
+        ffmpeg.FS('writeFile', 'concat.txt', 
+          'file avatar_with_text.mp4\nfile demo.mp4'
+        );
+        
+        // Concatenate videos
+        await ffmpeg.run(
+          '-f', 'concat',
+          '-safe', '0',
+          '-i', 'concat.txt',
+          '-c', 'copy',
+          'final.mp4'
+        );
+        
+        finalVideoPath = 'final.mp4';
       }
+
+      // Read the final video
+      const data = ffmpeg.FS('readFile', finalVideoPath);
+      const finalBlob = new Blob([data.buffer], { type: 'video/mp4' });
+
+      // Upload to Supabase storage
+      const finalFileName = `${crypto.randomUUID()}.mp4`;
+      const { error: uploadError } = await supabase.storage
+        .from('aiugcavatars')
+        .upload(finalFileName, finalBlob);
+
+      if (uploadError) throw uploadError;
+
+      // Update video record
+      const { error: updateError } = await supabase
+        .from('videos')
+        .update({
+          combined_video_path: finalFileName,
+          status: 'completed'
+        })
+        .eq('id', video.id);
+
+      if (updateError) throw updateError;
 
       toast({
         title: "Success",
@@ -399,9 +464,12 @@ const UGCEditor = () => {
       console.error('Error generating video:', error);
       toast({
         title: "Error",
-        description: "Failed to generate video",
+        description: error.message || "Failed to generate video",
         variant: "destructive"
       });
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
     }
   };
 
@@ -556,8 +624,9 @@ const UGCEditor = () => {
               variant="default" 
               className="w-full h-14 text-base font-medium"
               onPress={handleGenerateVideo}
+              disabled={isProcessing}
             >
-              Generate Video
+              {isProcessing ? 'Processing...' : 'Generate Video'}
             </Button>
           </div>
         </div>
