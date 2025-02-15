@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -270,7 +271,7 @@ const UGCEditor = () => {
                     <Button
                       key={position}
                       variant={hookPosition === position ? 'default' : 'secondary'}
-                      onClick={() => setHookPosition(position)}
+                      onPress={() => setHookPosition(position)}
                       className="capitalize flex-1"
                     >
                       {position}
