@@ -115,7 +115,7 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" isDisabled={loading}>
                   {loading ? "Signing in..." : "Sign in"}
                 </Button>
               </form>
@@ -141,7 +141,7 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" isDisabled={loading}>
                   {loading ? "Signing up..." : "Sign up"}
                 </Button>
               </form>
