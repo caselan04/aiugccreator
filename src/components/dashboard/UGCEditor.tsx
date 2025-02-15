@@ -270,9 +270,9 @@ const UGCEditor = () => {
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map((position) => (
                     <Button
                       key={position}
-                      variant={hookPosition === position ? 'default' : 'secondary'}
+                      variant={hookPosition === position ? 'default' : 'outline'}
                       onPress={() => setHookPosition(position)}
-                      className="capitalize flex-1"
+                      className={`capitalize flex-1 ${hookPosition !== position ? 'bg-white hover:bg-white/90' : ''}`}
                     >
                       {position}
                     </Button>
