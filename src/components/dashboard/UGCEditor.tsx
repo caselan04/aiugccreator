@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -22,9 +23,11 @@ type DemoVideo = {
   file_path: string;
   file_name: string;
   url?: string;
+  user_id?: string;
 };
 
 const UGCEditor = () => {
+  const navigate = useNavigate();
   const [hookText, setHookText] = useState("");
   const [hookPosition, setHookPosition] = useState<HookPosition>('top');
   const [selectedFont, setSelectedFont] = useState<FontOption>('sans');
@@ -44,20 +47,35 @@ const UGCEditor = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [showingDemo, setShowingDemo] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
+
   const currentVideos = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return avatarVideos.slice(startIndex, endIndex);
   }, [avatarVideos, currentPage, itemsPerPage]);
+
   useEffect(() => {
+    checkAuth();
     fetchAvatarVideos();
     fetchDemoVideos();
   }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to access this feature",
+        variant: "destructive"
+      });
+      navigate("/auth");
+    }
+  };
+
   const fetchAvatarVideos = async () => {
     try {
       setIsLoading(true);
@@ -75,33 +93,36 @@ const UGCEditor = () => {
         path: 'replicate-prediction-2hr8tajcpxrmc0cn0rcv9cvvy8.mp4',
         url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-2hr8tajcpxrmc0cn0rcv9cvvy8.mp4'
       }];
-      const {
-        data: files,
-        error
-      } = await supabase.storage.from('aiugcavatars').list();
+
+      const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
       if (error) {
         console.error('Error fetching videos:', error);
         setAvatarVideos(knownVideos);
         return;
       }
+
       console.log('Found files:', files);
       if (!files || files.length === 0) {
         console.log('No files found in the bucket, using known videos');
         setAvatarVideos(knownVideos);
         return;
       }
-      const videosWithUrls = await Promise.all(files.filter(file => !file.name.startsWith('.')).map(async file => {
-        const {
-          data: {
-            publicUrl
-          }
-        } = supabase.storage.from('aiugcavatars').getPublicUrl(file.name);
-        console.log(`Generated URL for ${file.name}:`, publicUrl);
-        return {
-          path: file.name,
-          url: publicUrl
-        };
-      }));
+
+      const videosWithUrls = await Promise.all(
+        files
+          .filter(file => !file.name.startsWith('.'))
+          .map(async file => {
+            const { data: { publicUrl } } = supabase.storage
+              .from('aiugcavatars')
+              .getPublicUrl(file.name);
+            console.log(`Generated URL for ${file.name}:`, publicUrl);
+            return {
+              path: file.name,
+              url: publicUrl
+            };
+          })
+      );
+
       console.log('Processed videos:', videosWithUrls);
       const allVideos = [...knownVideos, ...videosWithUrls.filter(v => !knownVideos.some(kv => kv.path === v.path))];
       setAvatarVideos(allVideos);
@@ -111,26 +132,29 @@ const UGCEditor = () => {
       setIsLoading(false);
     }
   };
+
   const fetchDemoVideos = async () => {
     try {
-      const {
-        data: demos,
-        error
-      } = await supabase.from('demo_videos').select('*').order('created_at', {
-        ascending: false
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: demos, error } = await supabase
+        .from('demo_videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
+
       const videosWithUrls = await Promise.all((demos || []).map(async demo => {
-        const {
-          data: {
-            publicUrl
-          }
-        } = supabase.storage.from('demo_videos').getPublicUrl(demo.file_path);
+        const { data: { publicUrl } } = supabase.storage
+          .from('demo_videos')
+          .getPublicUrl(demo.file_path);
         return {
           ...demo,
           url: publicUrl
         };
       }));
+
       setDemoVideos(videosWithUrls);
     } catch (error) {
       console.error('Error fetching demo videos:', error);
@@ -141,9 +165,11 @@ const UGCEditor = () => {
       });
     }
   };
+
   const handleDemoUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     if (!file.type.startsWith('video/')) {
       toast({
         title: "Invalid file type",
@@ -152,27 +178,46 @@ const UGCEditor = () => {
       });
       return;
     }
+
     try {
       setIsUploading(true);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to upload videos",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
-      const {
-        error: uploadError
-      } = await supabase.storage.from('demo_videos').upload(filePath, file);
+
+      const { error: uploadError } = await supabase.storage
+        .from('demo_videos')
+        .upload(filePath, file);
+
       if (uploadError) throw uploadError;
-      const {
-        error: dbError
-      } = await supabase.from('demo_videos').insert({
-        file_path: filePath,
-        file_name: file.name,
-        content_type: file.type,
-        size: file.size
-      });
+
+      const { error: dbError } = await supabase
+        .from('demo_videos')
+        .insert({
+          file_path: filePath,
+          file_name: file.name,
+          content_type: file.type,
+          size: file.size,
+          user_id: session.user.id
+        });
+
       if (dbError) throw dbError;
+
       toast({
         title: "Success",
         description: "Demo video uploaded successfully"
       });
+      
       fetchDemoVideos();
     } catch (error) {
       console.error('Error uploading demo video:', error);
@@ -185,25 +230,41 @@ const UGCEditor = () => {
       setIsUploading(false);
     }
   };
+
   const handleRemoveDemo = async () => {
     setSelectedDemoVideo(null);
   };
+
   const handleDeleteDemo = async (demo: DemoVideo, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent video selection when clicking delete
+    e.stopPropagation();
     if (isDeleting) return;
+
     try {
       setIsDeleting(true);
 
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to delete videos",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Delete from storage
-      const {
-        error: storageError
-      } = await supabase.storage.from('demo_videos').remove([demo.file_path]);
+      const { error: storageError } = await supabase.storage
+        .from('demo_videos')
+        .remove([demo.file_path]);
+
       if (storageError) throw storageError;
 
       // Delete from database
-      const {
-        error: dbError
-      } = await supabase.from('demo_videos').delete().eq('id', demo.id);
+      const { error: dbError } = await supabase
+        .from('demo_videos')
+        .delete()
+        .eq('id', demo.id);
+
       if (dbError) throw dbError;
 
       // Update UI
@@ -211,6 +272,7 @@ const UGCEditor = () => {
         setSelectedDemoVideo(null);
       }
       setDemoVideos(demoVideos.filter(v => v.id !== demo.id));
+      
       toast({
         title: "Success",
         description: "Demo video deleted successfully"
@@ -226,6 +288,7 @@ const UGCEditor = () => {
       setIsDeleting(false);
     }
   };
+
   const getFontClass = (font: FontOption) => {
     switch (font) {
       case 'serif':
@@ -236,6 +299,7 @@ const UGCEditor = () => {
         return 'font-sans';
     }
   };
+
   return (
     <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
