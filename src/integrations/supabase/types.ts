@@ -45,6 +45,7 @@ export type Database = {
       videos: {
         Row: {
           avatar_video_path: string | null
+          combined_video_path: string | null
           content_type: string | null
           created_at: string
           demo_video_path: string | null
@@ -62,6 +63,7 @@ export type Database = {
         }
         Insert: {
           avatar_video_path?: string | null
+          combined_video_path?: string | null
           content_type?: string | null
           created_at?: string
           demo_video_path?: string | null
@@ -79,6 +81,7 @@ export type Database = {
         }
         Update: {
           avatar_video_path?: string | null
+          combined_video_path?: string | null
           content_type?: string | null
           created_at?: string
           demo_video_path?: string | null

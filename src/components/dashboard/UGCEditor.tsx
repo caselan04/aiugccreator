@@ -350,7 +350,7 @@ const UGCEditor = () => {
       const { data: video, error } = await supabase
         .from('videos')
         .insert({
-          title: hookText.substring(0, 50), // Use first 50 chars of hook as title
+          title: hookText.substring(0, 50),
           hook_text: hookText,
           avatar_video_path: selectedVideo.path,
           font_style: selectedFont,
@@ -358,8 +358,8 @@ const UGCEditor = () => {
           file_name: selectedVideo.path,
           file_path: selectedVideo.path,
           user_id: session.user.id,
-          status: 'completed', // Since we're using existing avatar video
-          demo_video_path: selectedDemoVideo?.file_path // Add demo video path if selected
+          status: 'processing',
+          demo_video_path: selectedDemoVideo?.file_path
         })
         .select()
         .single();
@@ -374,14 +374,28 @@ const UGCEditor = () => {
         return;
       }
 
-      toast({
-        title: "Success",
-        description: "Video saved successfully! View it in My Videos.",
+      // Call the combine-videos function
+      const { error: combineError } = await supabase.functions.invoke('combine-videos', {
+        body: { videoId: video.id }
       });
 
-      // Optionally navigate to the videos page
+      if (combineError) {
+        console.error('Error combining videos:', combineError);
+        toast({
+          title: "Error",
+          description: "Failed to combine videos",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Video generated successfully! View it in My Videos.",
+      });
+
       navigate("/videos");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating video:', error);
       toast({
         title: "Error",
