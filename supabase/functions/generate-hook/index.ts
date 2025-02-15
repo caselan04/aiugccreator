@@ -51,12 +51,19 @@ serve(async (req) => {
       body: JSON.stringify({
         version: "3d0c1c6b4cdc16663a4f200710b8c08304af9ed77cbe59fbc32e27676feb5aab",
         input: {
-          prompt: systemPrompt + "\n\n" + userPrompt,
-          system_prompt: "You are an expert TikTok content creator specializing in creating engaging hooks.",
-          max_tokens: 100,
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt
+            },
+            {
+              role: "user",
+              content: userPrompt
+            }
+          ],
           temperature: 0.7,
-          top_p: 0.9,
-          repetition_penalty: 1.1
+          max_tokens: 150,
+          top_p: 0.9
         },
       }),
     });
