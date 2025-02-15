@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,12 @@ import {
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
+type DemoVideo = {
+  id: string;
+  file_path: string;
+  file_name: string;
+  url?: string;
+};
 
 const UGCEditor = () => {
   const [hookText, setHookText] = useState("");
