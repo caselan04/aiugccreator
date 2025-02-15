@@ -53,32 +53,55 @@ serve(async (req) => {
       console.log('Demo URL:', demoUrl)
     }
 
-    // Create an asset for the avatar video
-    const avatarAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
+    // Create the first asset with text overlay
+    const firstAssetBody: any = {
+      input: avatarUrl,
+      playback_policy: ['public']
+    }
+
+    if (video.hook_text) {
+      firstAssetBody.text_tracks = [{
+        text_type: "subtitles",
+        data: [{
+          start_time: 0,
+          text: video.hook_text,
+          position: video.hook_position === 'top' ? 'top' : 
+                   video.hook_position === 'middle' ? 'center' : 
+                   'bottom',
+          font_family: video.font_style === 'serif' ? 'serif' :
+                      video.font_style === 'mono' ? 'monospace' :
+                      'sans-serif',
+          font_size: 24,
+          color: '#FFFFFF',
+          stroke_color: '#000000',
+          stroke_width: 2
+        }]
+      }]
+    }
+
+    const firstAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${BASIC_AUTH}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        input: avatarUrl,
-        playback_policy: ['public']
-      })
+      body: JSON.stringify(firstAssetBody)
     })
 
-    const avatarResponseText = await avatarAssetResponse.text()
-    console.log('Mux avatar asset response:', avatarResponseText)
+    const firstAssetResponseText = await firstAssetResponse.text()
+    console.log('First asset response:', firstAssetResponseText)
 
-    if (!avatarAssetResponse.ok) {
-      throw new Error(`Failed to create Mux asset for avatar video: ${avatarResponseText}`)
+    if (!firstAssetResponse.ok) {
+      throw new Error(`Failed to create first asset: ${firstAssetResponseText}`)
     }
 
-    const avatarAsset = JSON.parse(avatarResponseText)
-    console.log('Created Mux asset for avatar video:', avatarAsset)
+    const firstAsset = JSON.parse(firstAssetResponseText)
 
-    let demoAsset = null
+    let finalAsset = firstAsset
+    
     if (demoUrl) {
-      const demoAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
+      // Create the second asset
+      const secondAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${BASIC_AUTH}`,
@@ -90,76 +113,46 @@ serve(async (req) => {
         })
       })
 
-      const demoResponseText = await demoAssetResponse.text()
-      console.log('Mux demo asset response:', demoResponseText)
+      const secondAssetResponseText = await secondAssetResponse.text()
+      console.log('Second asset response:', secondAssetResponseText)
 
-      if (!demoAssetResponse.ok) {
-        throw new Error(`Failed to create Mux asset for demo video: ${demoResponseText}`)
+      if (!secondAssetResponse.ok) {
+        throw new Error(`Failed to create second asset: ${secondAssetResponseText}`)
       }
 
-      demoAsset = JSON.parse(demoResponseText)
-      console.log('Created Mux asset for demo video:', demoAsset)
-    }
+      const secondAsset = JSON.parse(secondAssetResponseText)
 
-    // Prepare the input array for the final composition
-    const inputs = []
-
-    // Add avatar video with overlay if there's hook text
-    const avatarInput: any = { url: avatarUrl }
-    if (video.hook_text) {
-      avatarInput.overlay = {
-        text: [{
-          text: video.hook_text,
-          x: '(w-tw)/2',
-          y: video.hook_position === 'top' ? '10' : 
-             video.hook_position === 'middle' ? '(h-th)/2' : 
-             'h-th-10',
-          font_family: video.font_style === 'serif' ? 'serif' :
-                      video.font_style === 'mono' ? 'monospace' :
-                      'sans-serif',
-          font_size: '24',
-          color: 'white',
-          stroke_color: 'black',
-          stroke_width: '2'
-        }]
-      }
-    }
-    inputs.push(avatarInput)
-
-    // Add demo video if it exists
-    if (demoUrl) {
-      inputs.push({ url: demoUrl })
-    }
-
-    console.log('Sending composition request with inputs:', JSON.stringify(inputs, null, 2))
-
-    const compositionResponse = await fetch('https://api.mux.com/video/v1/assets', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${BASIC_AUTH}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        input: inputs,
-        playback_policy: ['public']
+      // Create a master asset that references both videos
+      const masterAssetResponse = await fetch('https://api.mux.com/video/v1/assets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${BASIC_AUTH}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input: [
+            `https://stream.mux.com/${firstAsset.data.playback_ids[0].id}.m3u8`,
+            `https://stream.mux.com/${secondAsset.data.playback_ids[0].id}.m3u8`
+          ],
+          playback_policy: ['public']
+        })
       })
-    })
 
-    const compositionResponseText = await compositionResponse.text()
-    console.log('Mux composition response:', compositionResponseText)
+      const masterAssetResponseText = await masterAssetResponse.text()
+      console.log('Master asset response:', masterAssetResponseText)
 
-    if (!compositionResponse.ok) {
-      throw new Error(`Failed to create Mux composition: ${compositionResponseText}`)
+      if (!masterAssetResponse.ok) {
+        throw new Error(`Failed to create master asset: ${masterAssetResponseText}`)
+      }
+
+      finalAsset = JSON.parse(masterAssetResponseText)
     }
-
-    const composition = JSON.parse(compositionResponseText)
-    console.log('Created Mux composition:', composition)
 
     // Update the video record with the Mux asset ID and status
     const { error: updateError } = await supabase
       .from('videos')
       .update({
-        combined_video_path: composition.data.playback_ids[0].id,
+        combined_video_path: finalAsset.data.playback_ids[0].id,
         status: 'completed'
       })
       .eq('id', videoId)
@@ -167,7 +160,7 @@ serve(async (req) => {
     if (updateError) throw updateError
 
     return new Response(
-      JSON.stringify({ success: true, playbackId: composition.data.playback_ids[0].id }),
+      JSON.stringify({ success: true, playbackId: finalAsset.data.playback_ids[0].id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
