@@ -386,7 +386,7 @@ const UGCEditor = () => {
             <Button 
               variant="default" 
               className="w-full h-14 text-base font-medium"
-              onClick={() => {
+              onPress={() => {
                 console.log('Generate video clicked');
               }}
             >
