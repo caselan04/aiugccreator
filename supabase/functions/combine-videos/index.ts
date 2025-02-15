@@ -9,6 +9,7 @@ const corsHeaders = {
 
 const MUX_TOKEN_ID = Deno.env.get('MUX_TOKEN_ID')
 const MUX_TOKEN_SECRET = Deno.env.get('MUX_TOKEN_SECRET')
+// Properly encode credentials for Basic Auth
 const BASIC_AUTH = btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`)
 
 serve(async (req) => {
@@ -18,6 +19,7 @@ serve(async (req) => {
 
   try {
     const { videoId } = await req.json()
+    console.log('Processing video ID:', videoId)
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -33,11 +35,14 @@ serve(async (req) => {
       .single()
 
     if (videoError) throw videoError
+    console.log('Retrieved video details:', video)
 
     // Get signed URLs for the videos
     const { data: { publicUrl: avatarUrl } } = supabase.storage
       .from('aiugcavatars')
       .getPublicUrl(video.avatar_video_path)
+
+    console.log('Avatar URL:', avatarUrl)
 
     let demoUrl = null
     if (video.demo_video_path) {
@@ -45,6 +50,7 @@ serve(async (req) => {
         .from('demo_videos')
         .getPublicUrl(video.demo_video_path)
       demoUrl = publicUrl
+      console.log('Demo URL:', demoUrl)
     }
 
     // Create an asset for the avatar video
@@ -60,11 +66,14 @@ serve(async (req) => {
       })
     })
 
+    const avatarResponseText = await avatarAssetResponse.text()
+    console.log('Mux avatar asset response:', avatarResponseText)
+
     if (!avatarAssetResponse.ok) {
-      throw new Error(`Failed to create Mux asset for avatar video: ${await avatarAssetResponse.text()}`)
+      throw new Error(`Failed to create Mux asset for avatar video: ${avatarResponseText}`)
     }
 
-    const avatarAsset = await avatarAssetResponse.json()
+    const avatarAsset = JSON.parse(avatarResponseText)
     console.log('Created Mux asset for avatar video:', avatarAsset)
 
     let demoAsset = null
@@ -81,71 +90,75 @@ serve(async (req) => {
         })
       })
 
+      const demoResponseText = await demoAssetResponse.text()
+      console.log('Mux demo asset response:', demoResponseText)
+
       if (!demoAssetResponse.ok) {
-        throw new Error(`Failed to create Mux asset for demo video: ${await demoAssetResponse.text()}`)
+        throw new Error(`Failed to create Mux asset for demo video: ${demoResponseText}`)
       }
 
-      demoAsset = await demoAssetResponse.json()
+      demoAsset = JSON.parse(demoResponseText)
       console.log('Created Mux asset for demo video:', demoAsset)
     }
 
     // Create a composition
-    const compositionInput: any = {
-      timeline: {
-        tracks: [
-          {
-            type: 'video',
-            clips: [
-              {
-                asset_id: avatarAsset.data.id,
-                start_time: 0,
-              }
-            ]
-          }
-        ]
-      },
-      overlay: {
-        text: [
-          {
-            text: video.hook_text,
-            x: '(main_w - text_w) / 2', // Center horizontally
-            y: video.hook_position === 'top' ? '10' : 
-               video.hook_position === 'middle' ? '(main_h - text_h) / 2' : 
-               '(main_h - text_h - 10)', // Position based on hook_position
-            font_family: video.font_style === 'serif' ? 'serif' :
-                        video.font_style === 'mono' ? 'monospace' :
-                        'sans-serif',
-            font_size: '24',
-            color: 'white',
-            stroke_color: 'black',
-            stroke_width: 2
-          }
-        ]
-      }
+    const compositionInput = {
+      input: [{
+        url: avatarUrl,
+        ...(demoUrl && { trim_offset: { end_time: 0 } })
+      }]
     }
 
-    // If there's a demo video, add it to the timeline
-    if (demoAsset) {
-      compositionInput.timeline.tracks[0].clips.push({
-        asset_id: demoAsset.data.id,
-        start_time: 'auto'
+    if (demoUrl) {
+      compositionInput.input.push({
+        url: demoUrl,
+        trim_offset: { start_time: 0 }
       })
     }
 
-    const compositionResponse = await fetch('https://api.mux.com/video/v1/compositions', {
+    // Add overlay if hook text exists
+    if (video.hook_text) {
+      compositionInput.overlay = {
+        text: [{
+          text: video.hook_text,
+          x: '(w-tw)/2',
+          y: video.hook_position === 'top' ? '10' : 
+             video.hook_position === 'middle' ? '(h-th)/2' : 
+             'h-th-10',
+          font_family: video.font_style === 'serif' ? 'serif' :
+                      video.font_style === 'mono' ? 'monospace' :
+                      'sans-serif',
+          font_size: '24',
+          color: 'white',
+          stroke_color: 'black',
+          stroke_width: '2'
+        }]
+      }
+    }
+
+    console.log('Sending composition request with input:', compositionInput)
+
+    const compositionResponse = await fetch('https://api.mux.com/video/v1/assets', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${BASIC_AUTH}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(compositionInput)
+      body: JSON.stringify({
+        input: compositionInput.input,
+        playback_policy: ['public'],
+        ...(compositionInput.overlay && { overlay: compositionInput.overlay })
+      })
     })
 
+    const compositionResponseText = await compositionResponse.text()
+    console.log('Mux composition response:', compositionResponseText)
+
     if (!compositionResponse.ok) {
-      throw new Error(`Failed to create Mux composition: ${await compositionResponse.text()}`)
+      throw new Error(`Failed to create Mux composition: ${compositionResponseText}`)
     }
 
-    const composition = await compositionResponse.json()
+    const composition = JSON.parse(compositionResponseText)
     console.log('Created Mux composition:', composition)
 
     // Update the video record with the Mux asset ID and status
