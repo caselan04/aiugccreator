@@ -7,7 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { FileTrigger } from "react-aria-components";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
 type DemoVideo = {
@@ -16,6 +23,7 @@ type DemoVideo = {
   file_name: string;
   url?: string;
 };
+
 const UGCEditor = () => {
   const [hookText, setHookText] = useState("");
   const [hookPosition, setHookPosition] = useState<HookPosition>('top');
@@ -228,9 +236,9 @@ const UGCEditor = () => {
         return 'font-sans';
     }
   };
-  return <div className="max-w-[1400px] mx-auto">
+  return (
+    <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
-      
       <div className="bg-neutral-100 rounded-2xl p-8 min-h-[600px]">
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-8">
@@ -335,40 +343,60 @@ const UGCEditor = () => {
 
           <div className="space-y-4">
             <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
-              {selectedVideo ? <>
-                  <video key={selectedVideo.url} src={selectedVideo.url} className="w-full h-full object-contain" autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
-                if (selectedDemoVideo) {
-                  setShowingDemo(true);
-                  e.currentTarget.classList.add('hidden');
-                  const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
-                  demoVideo?.classList.remove('hidden');
-                  demoVideo?.play();
-                }
-              }} />
+              {selectedVideo ? (
+                <>
+                  <video
+                    key={selectedVideo.url}
+                    src={selectedVideo.url}
+                    className="w-full h-full object-contain"
+                    autoPlay
+                    muted
+                    loop={!selectedDemoVideo}
+                    playsInline
+                    controls={false}
+                    onEnded={(e) => {
+                      if (selectedDemoVideo) {
+                        setShowingDemo(true);
+                        e.currentTarget.classList.add('hidden');
+                        const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
+                        demoVideo?.classList.remove('hidden');
+                        demoVideo?.play();
+                      }
+                    }}
+                  />
                   {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
-                setShowingDemo(false);
-                e.currentTarget.classList.add('hidden');
-                const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
-                mainVideo?.classList.remove('hidden');
-                mainVideo?.play();
-              }} />}
+                    setShowingDemo(false);
+                    e.currentTarget.classList.add('hidden');
+                    const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
+                    mainVideo?.classList.remove('hidden');
+                    mainVideo?.play();
+                  }} />}
                   {hookText && !showingDemo && <div className={`absolute left-0 right-0 px-6 pointer-events-none ${hookPosition === 'top' ? 'top-1/4' : hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' : 'bottom-1/4'}`}>
                       <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedFont)}`}>
                         {hookText}
                       </div>
                     </div>}
-                </> : <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-neutral-500">
                   Select an AI avatar to preview
-                </div>}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2 bg-neutral-200 rounded-xl p-4">
-              <div className="w-8 h-8 bg-neutral-300 rounded-lg"></div>
-              <span className="text-neutral-500 flex-1">Sound</span>
-              <span className="text-neutral-500">Subscription required to use</span>
-            </div>
+            <Button 
+              variant="default" 
+              className="w-full h-14 text-base font-medium"
+              onClick={() => {
+                console.log('Generate video clicked');
+              }}
+            >
+              Generate Video
+            </Button>
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default UGCEditor;
