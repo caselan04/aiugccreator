@@ -24,6 +24,7 @@ type Video = {
   hook_text: string;
   status: 'processing' | 'completed' | 'failed';
   file_path: string;
+  avatar_video_path: string;
   error_message?: string;
 };
 
@@ -168,7 +169,7 @@ const Videos = () => {
                   <div className="bg-white rounded-xl p-4 max-w-2xl w-full">
                     <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden">
                       <video
-                        src={`${supabase.storage.from('videos').getPublicUrl(selectedVideo.file_path).data.publicUrl}`}
+                        src={`${supabase.storage.from('aiugcavatars').getPublicUrl(selectedVideo.avatar_video_path).data.publicUrl}`}
                         controls
                         className="w-full h-full object-contain"
                       />
