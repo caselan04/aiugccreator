@@ -267,17 +267,14 @@ const UGCEditor = () => {
                 />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map((position) => (
-                    <button
+                    <Button
                       key={position}
-                      className={`px-4 py-2 rounded-xl capitalize ${
-                        hookPosition === position 
-                          ? 'bg-primary text-white' 
-                          : 'bg-white text-neutral-600 hover:bg-neutral-50'
-                      }`}
+                      variant={hookPosition === position ? 'default' : 'secondary'}
                       onClick={() => setHookPosition(position)}
+                      className="capitalize flex-1"
                     >
                       {position}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
