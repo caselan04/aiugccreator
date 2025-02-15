@@ -104,6 +104,9 @@ const UGCEditor = () => {
       }, {
         path: 'replicate-prediction-pxdhdts9bdrm80cn1era8xt3m4.mp4',
         url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-pxdhdts9bdrm80cn1era8xt3m4.mp4'
+      }, {
+        path: 'replicate-prediction-cxbppzzxhxrma0cn1f1vk2w2mg.mp4',
+        url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-cxbppzzxhxrma0cn1f1vk2w2mg.mp4'
       }];
 
       const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
