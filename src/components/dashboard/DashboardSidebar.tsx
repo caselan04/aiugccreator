@@ -5,6 +5,8 @@ import {
   Settings,
   Menu,
   X,
+  UserRound,
+  HelpCircle,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebarContext } from "@/components/ui/sidebar";
@@ -48,7 +50,7 @@ const DashboardSidebar = () => {
             </Button>
           </div>
 
-          {/* Navigation */}
+          {/* Main Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-2">
               <Link to="/dashboard">
@@ -75,6 +77,36 @@ const DashboardSidebar = () => {
                   My Videos
                 </Button>
               </Link>
+            </div>
+          </nav>
+
+          {/* Bottom Navigation */}
+          <div className="p-4 border-t border-neutral-200">
+            <div className="space-y-2">
+              <Link to="/profile">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start gap-2",
+                    location.pathname === "/profile" && "bg-neutral-100"
+                  )}
+                >
+                  <UserRound className="w-5 h-5" />
+                  Profile
+                </Button>
+              </Link>
+              <Link to="/support">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start gap-2",
+                    location.pathname === "/support" && "bg-neutral-100"
+                  )}
+                >
+                  <HelpCircle className="w-5 h-5" />
+                  Support
+                </Button>
+              </Link>
               <Link to="/settings">
                 <Button
                   variant="ghost"
@@ -88,7 +120,7 @@ const DashboardSidebar = () => {
                 </Button>
               </Link>
             </div>
-          </nav>
+          </div>
         </div>
       </div>
 
