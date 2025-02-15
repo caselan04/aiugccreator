@@ -104,14 +104,14 @@ serve(async (req) => {
     // Create a composition
     const compositionInput = {
       input: [{
-        url: avatarUrl,
+        url: `https://stream.mux.com/${avatarAsset.data.playback_ids[0].id}.m3u8`,
         ...(demoUrl && { trim_offset: { end_time: 0 } })
       }]
     }
 
-    if (demoUrl) {
+    if (demoAsset) {
       compositionInput.input.push({
-        url: demoUrl,
+        url: `https://stream.mux.com/${demoAsset.data.playback_ids[0].id}.m3u8`,
         trim_offset: { start_time: 0 }
       })
     }
@@ -136,7 +136,7 @@ serve(async (req) => {
       }
     }
 
-    console.log('Sending composition request with input:', compositionInput)
+    console.log('Sending composition request with input:', JSON.stringify(compositionInput, null, 2))
 
     const compositionResponse = await fetch('https://api.mux.com/video/v1/assets', {
       method: 'POST',
@@ -145,9 +145,28 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        input: compositionInput.input,
-        playback_policy: ['public'],
-        ...(compositionInput.overlay && { overlay: compositionInput.overlay })
+        input: [
+          {
+            url: avatarUrl,
+            overlay: video.hook_text ? {
+              text: [{
+                text: video.hook_text,
+                x: '(w-tw)/2',
+                y: video.hook_position === 'top' ? '10' : 
+                   video.hook_position === 'middle' ? '(h-th)/2' : 
+                   'h-th-10',
+                font_family: video.font_style === 'serif' ? 'serif' :
+                          video.font_style === 'mono' ? 'monospace' :
+                          'sans-serif',
+                font_size: '24',
+                color: 'white',
+                stroke_color: 'black',
+                stroke_width: '2'
+              }]
+            } : undefined
+          }
+        ],
+        playback_policy: ['public']
       })
     })
 
@@ -165,7 +184,7 @@ serve(async (req) => {
     const { error: updateError } = await supabase
       .from('videos')
       .update({
-        combined_video_path: composition.data.playback_id,
+        combined_video_path: composition.data.playback_ids[0].id,
         status: 'completed'
       })
       .eq('id', videoId)
@@ -173,7 +192,7 @@ serve(async (req) => {
     if (updateError) throw updateError
 
     return new Response(
-      JSON.stringify({ success: true, playbackId: composition.data.playback_id }),
+      JSON.stringify({ success: true, playbackId: composition.data.playback_ids[0].id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
