@@ -10,6 +10,7 @@ import {
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -32,6 +33,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/auth" element={<Auth />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

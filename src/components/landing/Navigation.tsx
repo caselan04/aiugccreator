@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,12 +23,12 @@ const Navigation = () => {
         </div>
         
         <div className="hidden md:flex items-center gap-4">
-          <button className="px-4 py-2 text-primary hover:text-primary/80 transition-colors font-medium">
+          <Link to="/auth" className="px-4 py-2 text-primary hover:text-primary/80 transition-colors font-medium">
             Log in
-          </button>
-          <button className="button-secondary">
+          </Link>
+          <Link to="/auth?tab=signup" className="button-secondary">
             Try for Free
-          </button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -51,12 +53,12 @@ const Navigation = () => {
             <a href="#pricing" className="text-neutral-600 hover:text-primary transition-colors font-medium px-4 py-2 hover:bg-neutral-200/50 rounded-lg">Pricing</a>
             <a href="#about" className="text-neutral-600 hover:text-primary transition-colors font-medium px-4 py-2 hover:bg-neutral-200/50 rounded-lg">About</a>
             <hr className="border-neutral-200" />
-            <button className="text-primary hover:text-primary/80 transition-colors font-medium px-4 py-2 hover:bg-neutral-200/50 rounded-lg text-left">
+            <Link to="/auth" className="text-primary hover:text-primary/80 transition-colors font-medium px-4 py-2 hover:bg-neutral-200/50 rounded-lg text-left">
               Log in
-            </button>
-            <button className="button-secondary w-full">
+            </Link>
+            <Link to="/auth?tab=signup" className="button-secondary w-full">
               Try for Free
-            </button>
+            </Link>
           </div>
         </motion.div>
       )}
