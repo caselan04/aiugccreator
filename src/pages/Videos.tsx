@@ -165,16 +165,16 @@ const Videos = () => {
               </div>
 
               {selectedVideo && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                  <div className="bg-white rounded-xl p-4 max-w-2xl w-full">
-                    <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-8 z-50">
+                  <div className="bg-white rounded-xl p-4 max-w-md w-full relative">
+                    <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden mb-4">
                       <video
                         src={`${supabase.storage.from('aiugcavatars').getPublicUrl(selectedVideo.avatar_video_path).data.publicUrl}`}
                         controls
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <div className="flex justify-end mt-4">
+                    <div className="flex justify-end">
                       <Button
                         variant="outline"
                         onPress={() => setSelectedVideo(null)}
