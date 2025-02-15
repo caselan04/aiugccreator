@@ -26,6 +26,19 @@ type Video = {
   file_path: string;
   avatar_video_path: string;
   error_message?: string;
+  font_style?: 'sans' | 'serif' | 'mono';
+  hook_position?: 'top' | 'middle' | 'bottom';
+};
+
+const getFontClass = (font?: string) => {
+  switch (font) {
+    case 'serif':
+      return 'font-serif';
+    case 'mono':
+      return 'font-mono';
+    default:
+      return 'font-sans';
+  }
 };
 
 const Videos = () => {
@@ -167,12 +180,23 @@ const Videos = () => {
               {selectedVideo && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-8 z-50">
                   <div className="bg-white rounded-xl p-4 max-w-md w-full relative">
-                    <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden mb-4">
+                    <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden mb-4 relative">
                       <video
                         src={`${supabase.storage.from('aiugcavatars').getPublicUrl(selectedVideo.avatar_video_path).data.publicUrl}`}
                         controls
                         className="w-full h-full object-contain"
                       />
+                      {selectedVideo.hook_text && (
+                        <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
+                          selectedVideo.hook_position === 'top' ? 'top-1/4' :
+                          selectedVideo.hook_position === 'middle' ? 'top-1/2 -translate-y-1/2' :
+                          'bottom-1/4'
+                        }`}>
+                          <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedVideo.font_style)}`}>
+                            {selectedVideo.hook_text}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex justify-end">
                       <Button
