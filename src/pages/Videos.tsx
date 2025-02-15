@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -131,35 +132,35 @@ const Videos = () => {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {videos?.map((video) => (
-                    <Card key={video.id} className="overflow-hidden">
-                      <CardContent className="space-y-4 my-[20px]">
+                    <Card key={video.id} className="overflow-hidden max-w-[240px]">
+                      <CardContent className="space-y-4 p-3">
                         {video.status === "completed" && (
-                          <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden relative">
+                          <div className="aspect-[9/16] bg-black rounded-lg overflow-hidden relative w-full">
                             <video
                               src={`${supabase.storage.from('aiugcavatars').getPublicUrl(video.avatar_video_path).data.publicUrl}`}
                               controls
                               className="w-full h-full object-contain"
                             />
                             {video.hook_text && (
-                              <div className={`absolute left-0 right-0 px-6 pointer-events-none ${
+                              <div className={`absolute left-0 right-0 px-4 pointer-events-none ${
                                 video.hook_position === 'top' ? 'top-1/4' :
                                 video.hook_position === 'middle' ? 'top-1/2 -translate-y-1/2' :
                                 'bottom-1/4'
                               }`}>
-                                <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(video.font_style)}`}>
+                                <div className={`text-white text-base font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(video.font_style)}`}>
                                   {video.hook_text}
                                 </div>
                               </div>
                             )}
                           </div>
                         )}
-                        <div className="text-sm text-neutral-500">
+                        <div className="text-xs text-neutral-500">
                           Created: {new Date(video.created_at).toLocaleDateString()}
                         </div>
                       </CardContent>
-                      <CardFooter className="flex justify-end gap-2 border-t bg-neutral-50 p-4">
+                      <CardFooter className="flex justify-end gap-1 border-t bg-neutral-50 p-2">
                         {video.status === "completed" && (
                           <>
                             <Button
@@ -170,7 +171,7 @@ const Videos = () => {
                                 `ugc-${video.id}.mp4`
                               )}
                             >
-                              <Download className="w-4 h-4" />
+                              <Download className="w-3 h-3" />
                             </Button>
                             {video.demo_video_path && (
                               <Button
@@ -181,7 +182,7 @@ const Videos = () => {
                                   `demo-${video.id}.mp4`
                                 )}
                               >
-                                <Download className="w-4 h-4" /> Demo
+                                <Download className="w-3 h-3" /> Demo
                               </Button>
                             )}
                           </>
@@ -191,7 +192,7 @@ const Videos = () => {
                           variant="outline"
                           onPress={() => handleDelete(video.id)}
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-3 h-3 text-red-500" />
                         </Button>
                       </CardFooter>
                     </Card>
