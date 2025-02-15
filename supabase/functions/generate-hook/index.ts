@@ -24,6 +24,7 @@ serve(async (req) => {
 
     const userPrompt = `Product/Service Description: ${prompt}\n\nCreate a TikTok hook that's conversational and engaging.`;
 
+    // Using the Deepseek R1 model
     const response = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
@@ -34,9 +35,11 @@ serve(async (req) => {
         version: "3d0c1c6b4cdc16663a4f200710b8c08304af9ed77cbe59fbc32e27676feb5aab",
         input: {
           prompt: systemPrompt + "\n\n" + userPrompt,
+          system_prompt: "You are an expert TikTok content creator specializing in creating engaging hooks.",
+          max_tokens: 100,
           temperature: 0.7,
-          max_length: 100,
           top_p: 0.9,
+          repetition_penalty: 1.1
         },
       }),
     });
@@ -69,7 +72,7 @@ serve(async (req) => {
     }
 
     // The output will be in result.output
-    const generatedHook = result.output;
+    const generatedHook = Array.isArray(result.output) ? result.output[0] : result.output;
     
     return new Response(JSON.stringify({ hook: generatedHook }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
