@@ -51,19 +51,12 @@ serve(async (req) => {
       body: JSON.stringify({
         version: "3d0c1c6b4cdc16663a4f200710b8c08304af9ed77cbe59fbc32e27676feb5aab",
         input: {
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            {
-              role: "user",
-              content: userPrompt
-            }
-          ],
-          temperature: 0.7,
+          prompt: systemPrompt + "\n\n" + userPrompt,
           max_tokens: 150,
-          top_p: 0.9
+          temperature: 0.7,
+          top_p: 0.9,
+          presence_penalty: 0,
+          frequency_penalty: 0
         },
       }),
     });
