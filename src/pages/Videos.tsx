@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Trash2, Play } from "lucide-react";
+import { Trash2, Play, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -85,6 +84,27 @@ const Videos = () => {
       toast({
         title: "Error",
         description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download video",
         variant: "destructive",
       });
     }
@@ -224,7 +244,33 @@ const Videos = () => {
                         </div>
                       )}
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onPress={() => handleDownload(
+                            supabase.storage.from('aiugcavatars').getPublicUrl(selectedVideo.avatar_video_path).data.publicUrl,
+                            `ugc-${selectedVideo.id}.mp4`
+                          )}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download UGC
+                        </Button>
+                        {selectedVideo.demo_video_path && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onPress={() => handleDownload(
+                              supabase.storage.from('demo_videos').getPublicUrl(selectedVideo.demo_video_path!).data.publicUrl,
+                              `demo-${selectedVideo.id}.mp4`
+                            )}
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Demo
+                          </Button>
+                        )}
+                      </div>
                       <Button
                         variant="outline"
                         onPress={() => setSelectedVideo(null)}
