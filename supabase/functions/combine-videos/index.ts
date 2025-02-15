@@ -102,28 +102,31 @@ serve(async (req) => {
     }
 
     // Prepare the input array for the final composition
-    const inputs = [
-      {
-        url: avatarUrl,
-        overlay: video.hook_text ? {
-          text: [{
-            text: video.hook_text,
-            x: '(w-tw)/2',
-            y: video.hook_position === 'top' ? '10' : 
-               video.hook_position === 'middle' ? '(h-th)/2' : 
-               'h-th-10',
-            font_family: video.font_style === 'serif' ? 'serif' :
+    const inputs = []
+
+    // Add avatar video with overlay if there's hook text
+    const avatarInput: any = { url: avatarUrl }
+    if (video.hook_text) {
+      avatarInput.overlay = {
+        text: [{
+          text: video.hook_text,
+          x: '(w-tw)/2',
+          y: video.hook_position === 'top' ? '10' : 
+             video.hook_position === 'middle' ? '(h-th)/2' : 
+             'h-th-10',
+          font_family: video.font_style === 'serif' ? 'serif' :
                       video.font_style === 'mono' ? 'monospace' :
                       'sans-serif',
-            font_size: '24',
-            color: 'white',
-            stroke_color: 'black',
-            stroke_width: '2'
-          }]
-        }
+          font_size: '24',
+          color: 'white',
+          stroke_color: 'black',
+          stroke_width: '2'
+        }]
       }
-    ]
+    }
+    inputs.push(avatarInput)
 
+    // Add demo video if it exists
     if (demoUrl) {
       inputs.push({ url: demoUrl })
     }
