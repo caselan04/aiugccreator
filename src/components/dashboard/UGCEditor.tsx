@@ -670,7 +670,7 @@ const UGCEditor = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="aspect-[9/11] rounded-3xl overflow-hidden flex items-center justify-center relative bg-inherit">
+            <div className="aspect-[9/11] overflow-hidden flex items-center justify-center relative bg-inherit rounded-none">
               {selectedVideo ? <>
                   <video key={selectedVideo.url} src={selectedVideo.url} autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
                 if (selectedDemoVideo) {
