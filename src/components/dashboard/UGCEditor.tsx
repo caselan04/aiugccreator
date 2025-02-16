@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { FFmpeg as FFmpegCore } from '@ffmpeg/core';
+import { loadFFmpeg } from '@/lib/loadFFmpeg';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -60,22 +61,11 @@ const UGCEditor = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadFFmpeg = async () => {
+    const initFFmpeg = async () => {
       try {
-        if (!ffmpeg.loaded) {
-          setProcessingStep('Loading FFmpeg...');
-          await ffmpeg.load({
-            coreURL: await toBlobURL(
-              new URL('@ffmpeg/core/dist/ffmpeg-core.js', import.meta.url).href,
-              'text/javascript'
-            ),
-            wasmURL: await toBlobURL(
-              new URL('@ffmpeg/core/dist/ffmpeg-core.wasm', import.meta.url).href,
-              'application/wasm'
-            ),
-          });
-          console.log('FFmpeg loaded successfully');
-        }
+        setProcessingStep('Loading FFmpeg...');
+        await loadFFmpeg(ffmpeg);
+        console.log('FFmpeg loaded successfully');
       } catch (error) {
         console.error('Error loading FFmpeg:', error);
         toast({
@@ -86,7 +76,7 @@ const UGCEditor = () => {
       }
     };
 
-    loadFFmpeg();
+    initFFmpeg();
 
     // Set up FFmpeg event handlers
     ffmpeg.on('log', ({ message }) => {
