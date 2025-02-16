@@ -6,8 +6,14 @@ export async function loadFFmpeg(ffmpeg: FFmpeg) {
   
   try {
     await ffmpeg.load({
-      coreURL: await toBlobURL('/ffmpeg-core.js', 'text/javascript'),
-      wasmURL: await toBlobURL('/ffmpeg-core.wasm', 'application/wasm'),
+      coreURL: await toBlobURL(
+        new URL('@ffmpeg/core/dist/ffmpeg-core.js', import.meta.url).href,
+        'text/javascript'
+      ),
+      wasmURL: await toBlobURL(
+        new URL('@ffmpeg/core/dist/ffmpeg-core.wasm', import.meta.url).href,
+        'application/wasm'
+      ),
     });
   } catch (error) {
     console.error('Failed to load FFmpeg:', error);

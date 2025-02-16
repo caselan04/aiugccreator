@@ -18,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { FFmpeg as FFmpegCore } from '@ffmpeg/core';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -64,8 +65,14 @@ const UGCEditor = () => {
         if (!ffmpeg.loaded) {
           setProcessingStep('Loading FFmpeg...');
           await ffmpeg.load({
-            coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
-            wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+            coreURL: await toBlobURL(
+              new URL('@ffmpeg/core/dist/ffmpeg-core.js', import.meta.url).href,
+              'text/javascript'
+            ),
+            wasmURL: await toBlobURL(
+              new URL('@ffmpeg/core/dist/ffmpeg-core.wasm', import.meta.url).href,
+              'application/wasm'
+            ),
           });
           console.log('FFmpeg loaded successfully');
         }
@@ -435,8 +442,14 @@ const UGCEditor = () => {
       if (!ffmpeg.loaded) {
         setProcessingStep('Loading FFmpeg...');
         await ffmpeg.load({
-          coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
-          wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+          coreURL: await toBlobURL(
+            new URL('@ffmpeg/core/dist/ffmpeg-core.js', import.meta.url).href,
+            'text/javascript'
+          ),
+          wasmURL: await toBlobURL(
+            new URL('@ffmpeg/core/dist/ffmpeg-core.wasm', import.meta.url).href,
+            'application/wasm'
+          ),
         });
       }
 
