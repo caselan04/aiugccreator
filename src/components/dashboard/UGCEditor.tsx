@@ -59,11 +59,13 @@ const UGCEditor = () => {
   const { toast } = useToast();
 
   const checkVideoFile = async (filename: string) => {
-    const exists = await ffmpeg.exists(filename);
-    if (!exists) {
+    try {
+      await ffmpeg.readFile(filename);
+      console.log(`Video file ${filename} exists`);
+      return true;
+    } catch (error) {
       throw new Error(`Video file ${filename} is missing`);
     }
-    console.log(`Video file ${filename} exists`);
   };
 
   useEffect(() => {
