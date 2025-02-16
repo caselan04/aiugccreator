@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile } from '@ffmpeg/util';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { loadFFmpeg } from '@/lib/loadFFmpeg';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
