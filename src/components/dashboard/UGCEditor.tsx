@@ -585,13 +585,7 @@ const UGCEditor = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Textarea
-                  className={`min-h-[80px] bg-white border border-gray-300 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`}
-                  placeholder="edit ur text here"
-                  value={hookText}
-                  onChange={e => setHookText(e.target.value)}
-                  rows={3}
-                />
+                <Textarea className={`min-h-[80px] bg-white border border-gray-300 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} placeholder="edit ur text here" value={hookText} onChange={e => setHookText(e.target.value)} rows={3} />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map(position => <Button key={position} variant={hookPosition === position ? 'default' : 'outline'} onPress={() => setHookPosition(position)} className={`capitalize flex-1 ${hookPosition !== position ? 'bg-white hover:bg-white/90' : ''}`}>
                       {position}
@@ -676,7 +670,7 @@ const UGCEditor = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
+            <div className="aspect-[9/11] rounded-3xl overflow-hidden flex items-center justify-center relative bg-inherit">
               {selectedVideo ? <>
                   <video key={selectedVideo.url} src={selectedVideo.url} autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
                 if (selectedDemoVideo) {
