@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
-
 type FontOption = 'default' | 'heading' | 'mono' | 'rounded' | 'condensed' | 'elegant' | 'playful' | 'system-ui' | 'ubuntu' | 'oxygen';
 type HookPosition = 'top' | 'middle' | 'bottom';
 type DemoVideo = {
@@ -681,7 +680,7 @@ const UGCEditor = () => {
                   demoVideo?.classList.remove('hidden');
                   demoVideo?.play();
                 }
-              }} className="w-full h-full object-contain bg-transparent" />
+              }} className="w-full h-full object-contain bg-white" />
                   {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
                 setShowingDemo(false);
                 e.currentTarget.classList.add('hidden');
