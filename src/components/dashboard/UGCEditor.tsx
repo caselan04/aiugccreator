@@ -8,17 +8,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { FileTrigger } from "react-aria-components";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
-
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
 type DemoVideo = {
@@ -28,7 +21,6 @@ type DemoVideo = {
   url?: string;
   user_id?: string;
 };
-
 const MAX_VIDEO_SIZE = 100_000_000; // 100MB
 
 const UGCEditor = () => {
@@ -56,8 +48,9 @@ const UGCEditor = () => {
   const [progress, setProgress] = useState(0);
   const ffmpeg = useMemo(() => new FFmpeg(), []);
   const [processingStep, setProcessingStep] = useState('');
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const checkVideoFile = async (filename: string) => {
     try {
       await ffmpeg.readFile(filename);
@@ -67,7 +60,6 @@ const UGCEditor = () => {
       throw new Error(`Video file ${filename} is missing`);
     }
   };
-
   useEffect(() => {
     const loadFFmpeg = async () => {
       try {
@@ -85,10 +77,10 @@ const UGCEditor = () => {
         });
       }
     };
-
     loadFFmpeg();
-
-    ffmpeg.on('log', ({ message }) => {
+    ffmpeg.on('log', ({
+      message
+    }) => {
       console.log('FFmpeg Log:', message);
       if (message.toLowerCase().includes('error')) {
         toast({
@@ -98,34 +90,33 @@ const UGCEditor = () => {
         });
       }
     });
-
-    ffmpeg.on('progress', ({ progress }) => {
+    ffmpeg.on('progress', ({
+      progress
+    }) => {
       console.log('FFmpeg Progress:', progress);
       setProgress(progress * 100);
       // Update step with percentage
-      setProcessingStep(prevStep => 
-        `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`
-      );
+      setProcessingStep(prevStep => `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`);
     });
   }, [ffmpeg, toast]);
-
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
-
   const currentVideos = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return avatarVideos.slice(startIndex, endIndex);
   }, [avatarVideos, currentPage, itemsPerPage]);
-
   useEffect(() => {
     checkAuth();
     fetchAvatarVideos();
     fetchDemoVideos();
   }, []);
-
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     if (!session) {
       toast({
         title: "Authentication required",
@@ -135,7 +126,6 @@ const UGCEditor = () => {
       navigate("/auth");
     }
   };
-
   const fetchAvatarVideos = async () => {
     try {
       setIsLoading(true);
@@ -171,36 +161,33 @@ const UGCEditor = () => {
         path: 'replicate-prediction-hgkez5g71srme0cn1hsrrdr3r0.mp4',
         url: 'https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/aiugcavatars//replicate-prediction-hgkez5g71srme0cn1hsrrdr3r0.mp4'
       }];
-
-      const { data: files, error } = await supabase.storage.from('aiugcavatars').list();
+      const {
+        data: files,
+        error
+      } = await supabase.storage.from('aiugcavatars').list();
       if (error) {
         console.error('Error fetching videos:', error);
         setAvatarVideos(knownVideos);
         return;
       }
-
       console.log('Found files:', files);
       if (!files || files.length === 0) {
         console.log('No files found in the bucket, using known videos');
         setAvatarVideos(knownVideos);
         return;
       }
-
-      const videosWithUrls = await Promise.all(
-        files
-          .filter(file => !file.name.startsWith('.'))
-          .map(async file => {
-            const { data: { publicUrl } } = supabase.storage
-              .from('aiugcavatars')
-              .getPublicUrl(file.name);
-            console.log(`Generated URL for ${file.name}:`, publicUrl);
-            return {
-              path: file.name,
-              url: publicUrl
-            };
-          })
-      );
-
+      const videosWithUrls = await Promise.all(files.filter(file => !file.name.startsWith('.')).map(async file => {
+        const {
+          data: {
+            publicUrl
+          }
+        } = supabase.storage.from('aiugcavatars').getPublicUrl(file.name);
+        console.log(`Generated URL for ${file.name}:`, publicUrl);
+        return {
+          path: file.name,
+          url: publicUrl
+        };
+      }));
       console.log('Processed videos:', videosWithUrls);
       const allVideos = [...knownVideos, ...videosWithUrls.filter(v => !knownVideos.some(kv => kv.path === v.path))];
       setAvatarVideos(allVideos);
@@ -210,29 +197,32 @@ const UGCEditor = () => {
       setIsLoading(false);
     }
   };
-
   const fetchDemoVideos = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) return;
-
-      const { data: demos, error } = await supabase
-        .from('demo_videos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const {
+        data: demos,
+        error
+      } = await supabase.from('demo_videos').select('*').order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
-
       const videosWithUrls = await Promise.all((demos || []).map(async demo => {
-        const { data: { publicUrl } } = supabase.storage
-          .from('demo_videos')
-          .getPublicUrl(demo.file_path);
+        const {
+          data: {
+            publicUrl
+          }
+        } = supabase.storage.from('demo_videos').getPublicUrl(demo.file_path);
         return {
           ...demo,
           url: publicUrl
         };
       }));
-
       setDemoVideos(videosWithUrls);
     } catch (error) {
       console.error('Error fetching demo videos:', error);
@@ -243,11 +233,9 @@ const UGCEditor = () => {
       });
     }
   };
-
   const handleDemoUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith('video/')) {
       toast({
         title: "Invalid file type",
@@ -256,11 +244,13 @@ const UGCEditor = () => {
       });
       return;
     }
-
     try {
       setIsUploading(true);
-      
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         toast({
           title: "Authentication required",
@@ -269,33 +259,26 @@ const UGCEditor = () => {
         });
         return;
       }
-
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('demo_videos')
-        .upload(filePath, file);
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from('demo_videos').upload(filePath, file);
       if (uploadError) throw uploadError;
-
-      const { error: dbError } = await supabase
-        .from('demo_videos')
-        .insert({
-          file_path: filePath,
-          file_name: file.name,
-          content_type: file.type,
-          size: file.size,
-          user_id: session.user.id
-        });
-
+      const {
+        error: dbError
+      } = await supabase.from('demo_videos').insert({
+        file_path: filePath,
+        file_name: file.name,
+        content_type: file.type,
+        size: file.size,
+        user_id: session.user.id
+      });
       if (dbError) throw dbError;
-
       toast({
         title: "Success",
         description: "Demo video uploaded successfully"
       });
-      
       fetchDemoVideos();
     } catch (error) {
       console.error('Error uploading demo video:', error);
@@ -308,19 +291,19 @@ const UGCEditor = () => {
       setIsUploading(false);
     }
   };
-
   const handleRemoveDemo = async () => {
     setSelectedDemoVideo(null);
   };
-
   const handleDeleteDemo = async (demo: DemoVideo, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isDeleting) return;
-
     try {
       setIsDeleting(true);
-
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         toast({
           title: "Authentication required",
@@ -331,18 +314,15 @@ const UGCEditor = () => {
       }
 
       // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('demo_videos')
-        .remove([demo.file_path]);
-
+      const {
+        error: storageError
+      } = await supabase.storage.from('demo_videos').remove([demo.file_path]);
       if (storageError) throw storageError;
 
       // Delete from database
-      const { error: dbError } = await supabase
-        .from('demo_videos')
-        .delete()
-        .eq('id', demo.id);
-
+      const {
+        error: dbError
+      } = await supabase.from('demo_videos').delete().eq('id', demo.id);
       if (dbError) throw dbError;
 
       // Update UI
@@ -350,7 +330,6 @@ const UGCEditor = () => {
         setSelectedDemoVideo(null);
       }
       setDemoVideos(demoVideos.filter(v => v.id !== demo.id));
-      
       toast({
         title: "Success",
         description: "Demo video deleted successfully"
@@ -366,7 +345,6 @@ const UGCEditor = () => {
       setIsDeleting(false);
     }
   };
-
   const getFontClass = (font: FontOption) => {
     switch (font) {
       case 'serif':
@@ -377,7 +355,6 @@ const UGCEditor = () => {
         return 'font-sans';
     }
   };
-
   const getFontName = (font: FontOption) => {
     const fontMap: Record<FontOption, string> = {
       'sans': 'Arial',
@@ -386,7 +363,6 @@ const UGCEditor = () => {
     };
     return fontMap[font];
   };
-
   const handleGenerateVideo = async () => {
     try {
       if (!selectedVideo) {
@@ -397,7 +373,6 @@ const UGCEditor = () => {
         });
         return;
       }
-
       if (!hookText) {
         toast({
           title: "Error",
@@ -406,8 +381,11 @@ const UGCEditor = () => {
         });
         return;
       }
-
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         toast({
           title: "Authentication required",
@@ -417,28 +395,25 @@ const UGCEditor = () => {
         navigate("/auth");
         return;
       }
-
       setIsProcessing(true);
       setProcessingStep('Initializing...');
 
       // Save initial video details
-      const { data: video, error } = await supabase
-        .from('videos')
-        .insert({
-          title: hookText.substring(0, 50),
-          hook_text: hookText,
-          avatar_video_path: selectedVideo.path,
-          font_style: selectedFont,
-          hook_position: hookPosition,
-          file_name: selectedVideo.path,
-          file_path: selectedVideo.path,
-          user_id: session.user.id,
-          status: 'processing',
-          demo_video_path: selectedDemoVideo?.file_path
-        })
-        .select()
-        .single();
-
+      const {
+        data: video,
+        error
+      } = await supabase.from('videos').insert({
+        title: hookText.substring(0, 50),
+        hook_text: hookText,
+        avatar_video_path: selectedVideo.path,
+        font_style: selectedFont,
+        hook_position: hookPosition,
+        file_name: selectedVideo.path,
+        file_path: selectedVideo.path,
+        user_id: session.user.id,
+        status: 'processing',
+        demo_video_path: selectedDemoVideo?.file_path
+      }).select().single();
       if (error) throw error;
 
       // Ensure FFmpeg is loaded
@@ -450,14 +425,15 @@ const UGCEditor = () => {
       // Process avatar video
       setProcessingStep('Processing avatar video...');
       console.log('Downloading avatar video:', selectedVideo.url);
-      const avatarResponse = await fetch(selectedVideo.url, { mode: 'cors' });
+      const avatarResponse = await fetch(selectedVideo.url, {
+        mode: 'cors'
+      });
       const avatarBlob = await avatarResponse.blob();
 
       // Check file size
       if (avatarBlob.size > MAX_VIDEO_SIZE) {
         throw new Error('Avatar video is too large (max 100MB)');
       }
-
       const avatarBuffer = await fetchFile(avatarBlob);
       await ffmpeg.writeFile('input.mp4', avatarBuffer);
       console.log('Avatar video written to FFmpeg');
@@ -469,77 +445,42 @@ const UGCEditor = () => {
       await checkVideoFile('input.mp4');
 
       // Calculate text position
-      const yPosition = hookPosition === 'top' ? '50' : 
-                       hookPosition === 'middle' ? '(h-text_h)/2' : 
-                       '(h-text_h-50)';
+      const yPosition = hookPosition === 'top' ? '50' : hookPosition === 'middle' ? '(h-text_h)/2' : '(h-text_h-50)';
 
       // Add text overlay with scaling
       setProcessingStep('Adding text overlay...');
-      const textCommand = [
-        '-i', 'input.mp4',
-        '-vf',
-        `scale=1280:720:force_original_aspect_ratio=decrease,` +
-        `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` +
-        `drawtext=text='${hookText.replace(/'/g, "'\\\\''")}':` +
-        `fontsize=24:` +
-        `fontcolor=white:` +
-        `x=(w-text_w)/2:` +
-        `y=${yPosition}:` +
-        `font=${getFontName(selectedFont)}`,
-        '-map', '0:v',
-        '-map', '0:a?',
-        '-c:a', 'aac',
-        '-b:a', '128k',
-        'output.mp4'
-      ];
-
+      const textCommand = ['-i', 'input.mp4', '-vf', `scale=1280:720:force_original_aspect_ratio=decrease,` + `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` + `drawtext=text='${hookText.replace(/'/g, "'\\\\''")}':` + `fontsize=24:` + `fontcolor=white:` + `x=(w-text_w)/2:` + `y=${yPosition}:` + `font=${getFontName(selectedFont)}`, '-map', '0:v', '-map', '0:a?', '-c:a', 'aac', '-b:a', '128k', 'output.mp4'];
       await ffmpeg.exec(textCommand);
       console.log('Text overlay completed');
 
       // Verify output file
       await checkVideoFile('output.mp4');
-
       let finalVideoPath = 'output.mp4';
 
       // Handle demo video
       if (selectedDemoVideo) {
         setProcessingStep('Processing demo video...');
         console.log('Downloading demo video:', selectedDemoVideo.url);
-        const demoResponse = await fetch(selectedDemoVideo.url!, { mode: 'cors' });
+        const demoResponse = await fetch(selectedDemoVideo.url!, {
+          mode: 'cors'
+        });
         const demoBlob = await demoResponse.blob();
-
         if (demoBlob.size > MAX_VIDEO_SIZE) {
           throw new Error('Demo video is too large (max 100MB)');
         }
-
         const demoBuffer = await fetchFile(demoBlob);
         await ffmpeg.writeFile('demo.mp4', demoBuffer);
-        
         await checkVideoFile('demo.mp4');
-        
+
         // Create concat file
         const concatContent = 'file output.mp4\nfile demo.mp4';
         await ffmpeg.writeFile('concat.txt', concatContent);
 
         // Merge videos with re-encoding
         setProcessingStep('Merging videos...');
-        const mergeCommands = [
-          '-f', 'concat',
-          '-safe', '0',
-          '-i', 'concat.txt',
-          '-c:v', 'libx264',
-          '-preset', 'fast',
-          '-vf', 'scale=1280:720',
-          '-c:a', 'aac',
-          '-b:a', '128k',
-          '-movflags', '+faststart',
-          '-y',
-          'final.mp4'
-        ];
-
+        const mergeCommands = ['-f', 'concat', '-safe', '0', '-i', 'concat.txt', '-c:v', 'libx264', '-preset', 'fast', '-vf', 'scale=1280:720', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', '-y', 'final.mp4'];
         await ffmpeg.exec(mergeCommands);
         console.log('Videos merged successfully');
-        
         finalVideoPath = 'final.mp4';
         await checkVideoFile('final.mp4');
       }
@@ -548,27 +489,26 @@ const UGCEditor = () => {
       setProcessingStep('Preparing final video...');
       console.log('Reading final video');
       const processedData = await ffmpeg.readFile(finalVideoPath);
-      const finalBlob = new Blob([processedData], { type: 'video/mp4' });
+      const finalBlob = new Blob([processedData], {
+        type: 'video/mp4'
+      });
       console.log('Final video size:', finalBlob.size);
 
       // Upload to Supabase
       setProcessingStep('Uploading to storage...');
       const finalFileName = `${crypto.randomUUID()}.mp4`;
-      const { error: uploadError } = await supabase.storage
-        .from('aiugcavatars')
-        .upload(finalFileName, finalBlob);
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from('aiugcavatars').upload(finalFileName, finalBlob);
       if (uploadError) throw uploadError;
 
       // Update video record
-      const { error: updateError } = await supabase
-        .from('videos')
-        .update({
-          combined_video_path: finalFileName,
-          status: 'completed'
-        })
-        .eq('id', video.id);
-
+      const {
+        error: updateError
+      } = await supabase.from('videos').update({
+        combined_video_path: finalFileName,
+        status: 'completed'
+      }).eq('id', video.id);
       if (updateError) throw updateError;
 
       // Cleanup FFmpeg files
@@ -579,12 +519,10 @@ const UGCEditor = () => {
         await ffmpeg.deleteFile('concat.txt');
         await ffmpeg.deleteFile('final.mp4');
       }
-
       toast({
         title: "Success",
-        description: "Video generated successfully! View it in My Videos.",
+        description: "Video generated successfully! View it in My Videos."
       });
-
       navigate("/videos");
     } catch (error: any) {
       console.error('Error generating video:', error);
@@ -599,9 +537,7 @@ const UGCEditor = () => {
       setProcessingStep('');
     }
   };
-
-  return (
-    <div className="max-w-[1400px] mx-auto">
+  return <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
       <div className="bg-neutral-100 rounded-2xl p-8 min-h-[600px]">
         <div className="grid grid-cols-2 gap-8">
@@ -707,67 +643,44 @@ const UGCEditor = () => {
 
           <div className="space-y-4">
             <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
-              {selectedVideo ? (
-                <>
-                  <video
-                    key={selectedVideo.url}
-                    src={selectedVideo.url}
-                    className="w-full h-full object-contain"
-                    autoPlay
-                    muted
-                    loop={!selectedDemoVideo}
-                    playsInline
-                    controls={false}
-                    onEnded={(e) => {
-                      if (selectedDemoVideo) {
-                        setShowingDemo(true);
-                        e.currentTarget.classList.add('hidden');
-                        const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
-                        demoVideo?.classList.remove('hidden');
-                        demoVideo?.play();
-                      }
-                    }}
-                  />
+              {selectedVideo ? <>
+                  <video key={selectedVideo.url} src={selectedVideo.url} autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
+                if (selectedDemoVideo) {
+                  setShowingDemo(true);
+                  e.currentTarget.classList.add('hidden');
+                  const demoVideo = e.currentTarget.nextElementSibling as HTMLVideoElement;
+                  demoVideo?.classList.remove('hidden');
+                  demoVideo?.play();
+                }
+              }} className="w-full h-full object-contain bg-transparent" />
                   {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
-                    setShowingDemo(false);
-                    e.currentTarget.classList.add('hidden');
-                    const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
-                    mainVideo?.classList.remove('hidden');
-                    mainVideo?.play();
-                  }} />}
+                setShowingDemo(false);
+                e.currentTarget.classList.add('hidden');
+                const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
+                mainVideo?.classList.remove('hidden');
+                mainVideo?.play();
+              }} />}
                   {hookText && !showingDemo && <div className={`absolute left-0 right-0 px-6 pointer-events-none ${hookPosition === 'top' ? 'top-1/4' : hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' : 'bottom-1/4'}`}>
                       <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedFont)}`}>
                         {hookText}
                       </div>
                     </div>}
-                </>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                </> : <div className="w-full h-full flex items-center justify-center text-neutral-500">
                   Select an AI avatar to preview
-                </div>
-              )}
+                </div>}
             </div>
-            <Button 
-              variant="default" 
-              className="w-full h-14 text-base font-medium"
-              onPress={handleGenerateVideo}
-              isDisabled={isProcessing}
-            >
+            <Button variant="default" className="w-full h-14 text-base font-medium" onPress={handleGenerateVideo} isDisabled={isProcessing}>
               {isProcessing ? 'Processing...' : 'Generate Video'}
             </Button>
           </div>
         </div>
       </div>
-      {isProcessing && (
-        <div className="space-y-2">
+      {isProcessing && <div className="space-y-2">
           <Progress value={progress} />
           <p className="text-sm text-center text-neutral-500">
             {processingStep} {Math.round(progress)}%
           </p>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default UGCEditor;
