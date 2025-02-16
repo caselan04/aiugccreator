@@ -665,7 +665,7 @@ const UGCEditor = () => {
                         {hookText}
                       </div>
                     </div>}
-                </> : <div className="w-full h-full flex items-center justify-center text-neutral-500 mx-[20px]">
+                </> : <div className="w-full h-full flex items-center justify-center text-neutral-500">
                   Select an AI avatar to preview
                 </div>}
             </div>
