@@ -681,13 +681,13 @@ const UGCEditor = () => {
                   demoVideo?.play();
                 }
               }} className="w-full h-full object-contain bg-white" />
-                  {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
+                  {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} muted playsInline controls={false} onEnded={e => {
                 setShowingDemo(false);
                 e.currentTarget.classList.add('hidden');
                 const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
                 mainVideo?.classList.remove('hidden');
                 mainVideo?.play();
-              }} />}
+              }} className="w-full h-full object-contain hidden bg-white" />}
                   {hookText && !showingDemo && <div className={`absolute left-0 right-0 px-6 pointer-events-none ${hookPosition === 'top' ? 'top-1/4' : hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' : 'bottom-1/4'}`}>
                       <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedFont)}`}>
                         {hookText}
