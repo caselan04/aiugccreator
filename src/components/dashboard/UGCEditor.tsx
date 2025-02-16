@@ -562,7 +562,7 @@ const UGCEditor = () => {
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
       <div className="bg-neutral-100 rounded-2xl p-8 min-h-[600px]">
         <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-8">
+          <div className="space-y-8 bg-white">
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">1. Text</h2>
               <div className="space-y-4">
