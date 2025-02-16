@@ -680,7 +680,7 @@ const UGCEditor = () => {
                   demoVideo?.classList.remove('hidden');
                   demoVideo?.play();
                 }
-              }} className="w-full h-full object-contain bg-white" />
+              }} className="w-full h-full object-contain bg-inherit" />
                   {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
                 setShowingDemo(false);
                 e.currentTarget.classList.add('hidden');
