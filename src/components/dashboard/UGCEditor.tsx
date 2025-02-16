@@ -585,7 +585,13 @@ const UGCEditor = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Textarea className={`min-h-[80px] bg-white border border-gray-300 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} placeholder="edit ur text here" value={hookText} onChange={e => setHookText(e.target.value)} rows={3} />
+                <Textarea
+                  className={`min-h-[80px] bg-white border border-gray-300 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`}
+                  placeholder="edit ur text here"
+                  value={hookText}
+                  onChange={e => setHookText(e.target.value)}
+                  rows={3}
+                />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map(position => <Button key={position} variant={hookPosition === position ? 'default' : 'outline'} onPress={() => setHookPosition(position)} className={`capitalize flex-1 ${hookPosition !== position ? 'bg-white hover:bg-white/90' : ''}`}>
                       {position}
@@ -681,19 +687,19 @@ const UGCEditor = () => {
                   demoVideo?.play();
                 }
               }} className="w-full h-full object-contain bg-white" />
-                  {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} muted playsInline controls={false} onEnded={e => {
+                  {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
                 setShowingDemo(false);
                 e.currentTarget.classList.add('hidden');
                 const mainVideo = e.currentTarget.previousElementSibling as HTMLVideoElement;
                 mainVideo?.classList.remove('hidden');
                 mainVideo?.play();
-              }} className="w-full h-full object-contain hidden bg-white" />}
+              }} />}
                   {hookText && !showingDemo && <div className={`absolute left-0 right-0 px-6 pointer-events-none ${hookPosition === 'top' ? 'top-1/4' : hookPosition === 'middle' ? 'top-1/2 -translate-y-1/2' : 'bottom-1/4'}`}>
                       <div className={`text-white text-2xl font-bold text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] whitespace-pre-wrap break-words max-w-full ${getFontClass(selectedFont)}`}>
                         {hookText}
                       </div>
                     </div>}
-                </> : <div className="w-full h-full flex items-center justify-center text-neutral-500 bg-gray-300 hover:bg-gray-200">
+                </> : <div className="w-full h-full flex items-center justify-center text-neutral-500">
                   Select an AI avatar to preview
                 </div>}
             </div>
