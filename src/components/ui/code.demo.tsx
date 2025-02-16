@@ -7,7 +7,7 @@ function Component() {
   const id = useId();
   return (
     <div className="space-y-2 min-w-[300px]">
-      <Label htmlFor={id}>Input with end button</Label>
+      <Label htmlFor={id}></Label>
       <div className="flex rounded-lg shadow-sm shadow-black/5">
         <Input
           id={id}
