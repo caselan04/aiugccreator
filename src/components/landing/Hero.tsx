@@ -1,10 +1,11 @@
+
 import { motion } from "framer-motion";
 import { Component as EmailInput } from "@/components/ui/code.demo";
 const Hero = () => {
   return <header className="container-padding py-12 bg-slate-50">
       {/* Hero content */}
       <div className="max-w-4xl mx-auto text-center relative z-10 pt-40 pb-32">
-        <motion.h1 className="heading-xl mb-6" initial={{
+        <motion.h1 className="font-seasons heading-xl mb-6" initial={{
         opacity: 0,
         y: 20
       }} animate={{

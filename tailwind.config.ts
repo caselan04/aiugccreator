@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -50,6 +51,7 @@ export default {
       },
       fontFamily: {
         sans: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "sans-serif"],
+        seasons: ["The Seasons", "serif"],
       },
       animation: {
         "fade-up": "fadeUp 0.5s ease-out forwards",
