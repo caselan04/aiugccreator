@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,8 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { loadFFmpeg } from '@/lib/loadFFmpeg';
+import { fetchFile } from '@ffmpeg/util';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -60,25 +58,36 @@ const UGCEditor = () => {
   const [processingStep, setProcessingStep] = useState('');
   const { toast } = useToast();
 
+  const checkVideoFile = async (filename: string) => {
+    try {
+      await ffmpeg.readFile(filename);
+      console.log(`Video file ${filename} exists`);
+      return true;
+    } catch (error) {
+      throw new Error(`Video file ${filename} is missing`);
+    }
+  };
+
   useEffect(() => {
-    const initFFmpeg = async () => {
+    const loadFFmpeg = async () => {
       try {
-        setProcessingStep('Loading FFmpeg...');
-        await loadFFmpeg(ffmpeg);
-        console.log('FFmpeg loaded successfully');
+        if (!ffmpeg.loaded) {
+          setProcessingStep('Loading FFmpeg...');
+          await ffmpeg.load();
+          console.log('FFmpeg loaded successfully');
+        }
       } catch (error) {
         console.error('Error loading FFmpeg:', error);
         toast({
           title: "Error",
-          description: "Failed to initialize video processor. Please ensure you have a stable internet connection.",
+          description: "Failed to initialize video processor",
           variant: "destructive"
         });
       }
     };
 
-    initFFmpeg();
+    loadFFmpeg();
 
-    // Set up FFmpeg event handlers
     ffmpeg.on('log', ({ message }) => {
       console.log('FFmpeg Log:', message);
       if (message.toLowerCase().includes('error')) {
@@ -90,9 +99,10 @@ const UGCEditor = () => {
       }
     });
 
-    ffmpeg.on('progress', ({ progress, time }) => {
+    ffmpeg.on('progress', ({ progress }) => {
       console.log('FFmpeg Progress:', progress);
       setProgress(progress * 100);
+      // Update step with percentage
       setProcessingStep(prevStep => 
         `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`
       );
@@ -431,64 +441,68 @@ const UGCEditor = () => {
       // Ensure FFmpeg is loaded
       if (!ffmpeg.loaded) {
         setProcessingStep('Loading FFmpeg...');
-        await ffmpeg.load({
-          coreURL: await toBlobURL(
-            new URL('@ffmpeg/core/dist/ffmpeg-core.js', import.meta.url).href,
-            'text/javascript'
-          ),
-          wasmURL: await toBlobURL(
-            new URL('@ffmpeg/core/dist/ffmpeg-core.wasm', import.meta.url).href,
-            'application/wasm'
-          ),
-        });
+        await ffmpeg.load();
       }
 
       // Process avatar video
       setProcessingStep('Processing avatar video...');
-      const avatarResponse = await fetch(selectedVideo.url);
+      console.log('Downloading avatar video:', selectedVideo.url);
+      const avatarResponse = await fetch(selectedVideo.url, { mode: 'cors' });
       const avatarBlob = await avatarResponse.blob();
 
+      // Check file size
       if (avatarBlob.size > MAX_VIDEO_SIZE) {
         throw new Error('Avatar video is too large (max 100MB)');
       }
 
       const avatarBuffer = await fetchFile(avatarBlob);
       await ffmpeg.writeFile('input.mp4', avatarBuffer);
+      console.log('Avatar video written to FFmpeg');
 
-      // Escape special characters in hook text
-      const escapedText = hookText.replace(/[\\'"]/g, "\\$&");
+      // Log available files
+      console.log('FFmpeg FS contents:', await ffmpeg.listDir('/'));
+
+      // Verify input file
+      await checkVideoFile('input.mp4');
 
       // Calculate text position
       const yPosition = hookPosition === 'top' ? '50' : 
                        hookPosition === 'middle' ? '(h-text_h)/2' : 
                        '(h-text_h-50)';
 
-      // Process the avatar video with text overlay
+      // Add text overlay with scaling
       setProcessingStep('Adding text overlay...');
-      await ffmpeg.exec([
+      const textCommand = [
         '-i', 'input.mp4',
-        '-vf', `scale=1280:720:force_original_aspect_ratio=decrease,` +
-               `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` +
-               `drawtext=text='${escapedText}':` +
-               `fontfile=/font.ttf:` + // Using default font
-               `fontsize=48:` +
-               `fontcolor=white:` +
-               `box=1:boxcolor=black@0.5:` +
-               `boxborderw=5:` +
-               `x=(w-text_w)/2:` +
-               `y=${yPosition}`,
-        '-c:v', 'libx264',
-        '-preset', 'ultrafast',
-        '-c:a', 'copy',
+        '-vf',
+        `scale=1280:720:force_original_aspect_ratio=decrease,` +
+        `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` +
+        `drawtext=text='${hookText.replace(/'/g, "'\\\\''")}':` +
+        `fontsize=24:` +
+        `fontcolor=white:` +
+        `x=(w-text_w)/2:` +
+        `y=${yPosition}:` +
+        `font=${getFontName(selectedFont)}`,
+        '-map', '0:v',
+        '-map', '0:a?',
+        '-c:a', 'aac',
+        '-b:a', '128k',
         'output.mp4'
-      ]);
+      ];
+
+      await ffmpeg.exec(textCommand);
+      console.log('Text overlay completed');
+
+      // Verify output file
+      await checkVideoFile('output.mp4');
 
       let finalVideoPath = 'output.mp4';
 
-      // Handle demo video if selected
-      if (selectedDemoVideo?.url) {
+      // Handle demo video
+      if (selectedDemoVideo) {
         setProcessingStep('Processing demo video...');
-        const demoResponse = await fetch(selectedDemoVideo.url);
+        console.log('Downloading demo video:', selectedDemoVideo.url);
+        const demoResponse = await fetch(selectedDemoVideo.url!, { mode: 'cors' });
         const demoBlob = await demoResponse.blob();
 
         if (demoBlob.size > MAX_VIDEO_SIZE) {
@@ -497,29 +511,42 @@ const UGCEditor = () => {
 
         const demoBuffer = await fetchFile(demoBlob);
         await ffmpeg.writeFile('demo.mp4', demoBuffer);
-
+        
+        await checkVideoFile('demo.mp4');
+        
         // Create concat file
-        await ffmpeg.writeFile('concat.txt', 
-          'file output.mp4\nfile demo.mp4'
-        );
+        const concatContent = 'file output.mp4\nfile demo.mp4';
+        await ffmpeg.writeFile('concat.txt', concatContent);
 
-        // Concatenate videos
+        // Merge videos with re-encoding
         setProcessingStep('Merging videos...');
-        await ffmpeg.exec([
+        const mergeCommands = [
           '-f', 'concat',
           '-safe', '0',
           '-i', 'concat.txt',
-          '-c', 'copy',
+          '-c:v', 'libx264',
+          '-preset', 'fast',
+          '-vf', 'scale=1280:720',
+          '-c:a', 'aac',
+          '-b:a', '128k',
+          '-movflags', '+faststart',
+          '-y',
           'final.mp4'
-        ]);
+        ];
 
+        await ffmpeg.exec(mergeCommands);
+        console.log('Videos merged successfully');
+        
         finalVideoPath = 'final.mp4';
+        await checkVideoFile('final.mp4');
       }
 
-      // Read the final video
+      // Read final video
       setProcessingStep('Preparing final video...');
+      console.log('Reading final video');
       const processedData = await ffmpeg.readFile(finalVideoPath);
       const finalBlob = new Blob([processedData], { type: 'video/mp4' });
+      console.log('Final video size:', finalBlob.size);
 
       // Upload to Supabase
       setProcessingStep('Uploading to storage...');
@@ -541,6 +568,15 @@ const UGCEditor = () => {
 
       if (updateError) throw updateError;
 
+      // Cleanup FFmpeg files
+      await ffmpeg.deleteFile('input.mp4');
+      await ffmpeg.deleteFile('output.mp4');
+      if (selectedDemoVideo) {
+        await ffmpeg.deleteFile('demo.mp4');
+        await ffmpeg.deleteFile('concat.txt');
+        await ffmpeg.deleteFile('final.mp4');
+      }
+
       toast({
         title: "Success",
         description: "Video generated successfully! View it in My Videos.",
@@ -558,19 +594,6 @@ const UGCEditor = () => {
       setIsProcessing(false);
       setProgress(0);
       setProcessingStep('');
-      
-      // Cleanup FFmpeg files
-      try {
-        await ffmpeg.deleteFile('input.mp4');
-        await ffmpeg.deleteFile('output.mp4');
-        await ffmpeg.deleteFile('concat.txt');
-        if (selectedDemoVideo) {
-          await ffmpeg.deleteFile('demo.mp4');
-          await ffmpeg.deleteFile('final.mp4');
-        }
-      } catch (e) {
-        console.error('Error cleaning up files:', e);
-      }
     }
   };
 
