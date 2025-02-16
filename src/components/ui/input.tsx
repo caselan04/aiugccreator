@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-  variant?: "default" | "heading" | "mono" | "rounded" | "condensed" | "elegant" | "playful"
+  variant?: "default" | "heading" | "mono" | "rounded" | "condensed" | "elegant" | "playful" | "system-ui" | "ubuntu" | "oxygen"
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -16,7 +16,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       rounded: "font-open-sans",
       condensed: "font-roboto-condensed",
       elegant: "font-playfair",
-      playful: "font-['Comic_Sans_MS']"
+      playful: "font-['Comic_Sans_MS']",
+      "system-ui": "font-['system-ui']",
+      ubuntu: "font-['Ubuntu']",
+      oxygen: "font-['Oxygen']"
     }
 
     return (
