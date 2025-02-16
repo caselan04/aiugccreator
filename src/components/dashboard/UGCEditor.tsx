@@ -55,7 +55,6 @@ const UGCEditor = () => {
   const ffmpeg = useMemo(() => new FFmpeg(), []);
   const [processingStep, setProcessingStep] = useState('');
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadFFmpeg = async () => {
@@ -79,20 +78,18 @@ const UGCEditor = () => {
 
     ffmpeg.on('log', ({ message }) => {
       console.log('FFmpeg Log:', message);
+      if (message.toLowerCase().includes('error')) {
+        toast({
+          title: "Processing Error",
+          description: message,
+          variant: "destructive"
+        });
+      }
     });
 
     ffmpeg.on('progress', ({ progress }) => {
       console.log('FFmpeg Progress:', progress);
       setProgress(progress * 100);
-    });
-
-    ffmpeg.on('error', ({ message }) => {
-      console.error('FFmpeg Error:', message);
-      toast({
-        title: "Processing Error",
-        description: message,
-        variant: "destructive"
-      });
     });
   }, [ffmpeg, toast]);
 
