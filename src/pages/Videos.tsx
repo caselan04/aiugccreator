@@ -37,33 +37,43 @@ const getFontClass = (font?: string) => {
 
 const Videos = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const {
-    data: videos,
-    isLoading,
-    refetch
-  } = useQuery({
+  const { data: videos, isLoading, refetch } = useQuery({
     queryKey: ['videos'],
     queryFn: async () => {
-      const {
-        data: {
-          session
-        }
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session); // Debug log for session
+
       if (!session) {
         navigate("/auth");
         return [];
       }
-      const {
-        data,
-        error
-      } = await supabase.from('videos').select('*').order('created_at', {
-        ascending: false
-      });
+
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      console.log("Videos data:", data); // Debug log for videos data
+      console.log("Videos error:", error); // Debug log for any errors
+
       if (error) throw error;
+
+      // Log the constructed URLs for debugging
+      if (data) {
+        data.forEach(video => {
+          if (video.avatar_video_path) {
+            const url = supabase.storage.from('aiugcavatars').getPublicUrl(video.avatar_video_path);
+            console.log(`Video ${video.id} URL:`, url);
+          }
+          if (video.demo_video_path) {
+            const url = supabase.storage.from('demo_videos').getPublicUrl(video.demo_video_path);
+            console.log(`Demo ${video.id} URL:`, url);
+          }
+        });
+      }
+
       return data as Video[];
     }
   });
