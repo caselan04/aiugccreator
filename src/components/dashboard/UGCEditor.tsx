@@ -12,8 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
+
+type FontOption = 'default' | 'heading' | 'mono' | 'rounded' | 'condensed' | 'elegant' | 'playful' | 'system-ui' | 'ubuntu' | 'oxygen';
 type HookPosition = 'top' | 'middle' | 'bottom';
-type FontOption = 'sans' | 'serif' | 'mono';
 type DemoVideo = {
   id: string;
   file_path: string;
@@ -27,7 +28,7 @@ const UGCEditor = () => {
   const navigate = useNavigate();
   const [hookText, setHookText] = useState("");
   const [hookPosition, setHookPosition] = useState<HookPosition>('top');
-  const [selectedFont, setSelectedFont] = useState<FontOption>('sans');
+  const [selectedFont, setSelectedFont] = useState<FontOption>('default');
   const [selectedTab, setSelectedTab] = useState("Templates");
   const [currentPage, setCurrentPage] = useState(1);
   const [avatarVideos, setAvatarVideos] = useState<{
@@ -347,19 +348,40 @@ const UGCEditor = () => {
   };
   const getFontClass = (font: FontOption) => {
     switch (font) {
-      case 'serif':
+      case 'heading':
         return 'font-serif';
       case 'mono':
         return 'font-mono';
+      case 'rounded':
+        return 'font-open-sans';
+      case 'condensed':
+        return 'font-roboto-condensed';
+      case 'elegant':
+        return 'font-playfair';
+      case 'playful':
+        return 'font-[\'Comic_Sans_MS\']';
+      case 'system-ui':
+        return 'font-[\'system-ui\']';
+      case 'ubuntu':
+        return 'font-[\'Ubuntu\']';
+      case 'oxygen':
+        return 'font-[\'Oxygen\']';
       default:
         return 'font-sans';
     }
   };
   const getFontName = (font: FontOption) => {
     const fontMap: Record<FontOption, string> = {
-      'sans': 'Arial',
-      'serif': 'Times New Roman',
-      'mono': 'Courier New'
+      'default': 'Arial',
+      'heading': 'Times New Roman',
+      'mono': 'Courier New',
+      'rounded': 'Open Sans',
+      'condensed': 'Roboto Condensed',
+      'elegant': 'Playfair Display',
+      'playful': 'Comic Sans MS',
+      'system-ui': 'System UI',
+      'ubuntu': 'Ubuntu',
+      'oxygen': 'Oxygen'
     };
     return fontMap[font];
   };
@@ -551,9 +573,16 @@ const UGCEditor = () => {
                       <SelectValue placeholder="Select font" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sans">Sans-serif</SelectItem>
-                      <SelectItem value="serif">Serif</SelectItem>
+                      <SelectItem value="default">Sans-serif</SelectItem>
+                      <SelectItem value="heading">Serif</SelectItem>
                       <SelectItem value="mono">Monospace</SelectItem>
+                      <SelectItem value="rounded">Open Sans</SelectItem>
+                      <SelectItem value="condensed">Roboto Condensed</SelectItem>
+                      <SelectItem value="elegant">Playfair Display</SelectItem>
+                      <SelectItem value="playful">Comic Sans MS</SelectItem>
+                      <SelectItem value="system-ui">System UI</SelectItem>
+                      <SelectItem value="ubuntu">Ubuntu</SelectItem>
+                      <SelectItem value="oxygen">Oxygen</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
