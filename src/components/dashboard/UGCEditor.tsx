@@ -560,7 +560,7 @@ const UGCEditor = () => {
   };
   return <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
-      <div className="rounded-2xl p-8 min-h-[600px] bg-gray-300 hover:bg-gray-200">
+      <div className="rounded-2xl p-8 min-h-[600px] bg-white">
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-8 bg-white my-0">
             <div>
