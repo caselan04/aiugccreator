@@ -11,8 +11,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
-import Videos from "./pages/Videos";
-import HookGenerator from "./pages/HookGenerator";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -34,10 +32,8 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/videos" element={<Videos />} />
-              <Route path="/hook-generator" element={<HookGenerator />} />
+              <Route path="/dashboard/*" element={<Dashboard />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
