@@ -572,7 +572,7 @@ const UGCEditor = () => {
                     <SelectTrigger className="w-[180px] bg-white">
                       <SelectValue placeholder="Select font" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border z-50">
                       <SelectItem value="default">Sans-serif</SelectItem>
                       <SelectItem value="heading">Serif</SelectItem>
                       <SelectItem value="mono">Monospace</SelectItem>
