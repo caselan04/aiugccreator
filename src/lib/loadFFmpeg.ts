@@ -15,4 +15,4 @@ export async function loadFFmpeg(ffmpeg: FFmpeg) {
     console.error('Failed to load FFmpeg:', error);
     throw new Error('Failed to load video processor');
   }
-} 
+}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,8 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { FFmpeg as FFmpegCore } from '@ffmpeg/core';
+import { fetchFile } from '@ffmpeg/util';
 import { loadFFmpeg } from '@/lib/loadFFmpeg';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
