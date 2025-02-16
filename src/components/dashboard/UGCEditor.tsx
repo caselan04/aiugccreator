@@ -29,6 +29,8 @@ type DemoVideo = {
   user_id?: string;
 };
 
+const MAX_VIDEO_SIZE = 100_000_000; // 100MB
+
 const UGCEditor = () => {
   const navigate = useNavigate();
   const [hookText, setHookText] = useState("");
@@ -55,6 +57,14 @@ const UGCEditor = () => {
   const ffmpeg = useMemo(() => new FFmpeg(), []);
   const [processingStep, setProcessingStep] = useState('');
   const { toast } = useToast();
+
+  const checkVideoFile = async (filename: string) => {
+    const exists = await ffmpeg.exists(filename);
+    if (!exists) {
+      throw new Error(`Video file ${filename} is missing`);
+    }
+    console.log(`Video file ${filename} exists`);
+  };
 
   useEffect(() => {
     const loadFFmpeg = async () => {
@@ -90,6 +100,10 @@ const UGCEditor = () => {
     ffmpeg.on('progress', ({ progress }) => {
       console.log('FFmpeg Progress:', progress);
       setProgress(progress * 100);
+      // Update step with percentage
+      setProcessingStep(prevStep => 
+        `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`
+      );
     });
   }, [ffmpeg, toast]);
 
@@ -431,12 +445,23 @@ const UGCEditor = () => {
       // Process avatar video
       setProcessingStep('Processing avatar video...');
       console.log('Downloading avatar video:', selectedVideo.url);
-      const avatarResponse = await fetch(selectedVideo.url);
+      const avatarResponse = await fetch(selectedVideo.url, { mode: 'cors' });
       const avatarBlob = await avatarResponse.blob();
-      const avatarBuffer = await fetchFile(avatarBlob);
 
+      // Check file size
+      if (avatarBlob.size > MAX_VIDEO_SIZE) {
+        throw new Error('Avatar video is too large (max 100MB)');
+      }
+
+      const avatarBuffer = await fetchFile(avatarBlob);
       await ffmpeg.writeFile('input.mp4', avatarBuffer);
       console.log('Avatar video written to FFmpeg');
+
+      // Log available files
+      console.log('FFmpeg FS contents:', await ffmpeg.listDir('/'));
+
+      // Verify input file
+      await checkVideoFile('input.mp4');
 
       // Calculate text position
       const yPosition = hookPosition === 'top' ? '50' : 
@@ -456,12 +481,18 @@ const UGCEditor = () => {
         `x=(w-text_w)/2:` +
         `y=${yPosition}:` +
         `font=${getFontName(selectedFont)}`,
-        '-c:a', 'copy',
+        '-map', '0:v',
+        '-map', '0:a?',
+        '-c:a', 'aac',
+        '-b:a', '128k',
         'output.mp4'
       ];
 
       await ffmpeg.exec(textCommand);
       console.log('Text overlay completed');
+
+      // Verify output file
+      await checkVideoFile('output.mp4');
 
       let finalVideoPath = 'output.mp4';
 
@@ -469,11 +500,17 @@ const UGCEditor = () => {
       if (selectedDemoVideo) {
         setProcessingStep('Processing demo video...');
         console.log('Downloading demo video:', selectedDemoVideo.url);
-        const demoResponse = await fetch(selectedDemoVideo.url!);
+        const demoResponse = await fetch(selectedDemoVideo.url!, { mode: 'cors' });
         const demoBlob = await demoResponse.blob();
-        const demoBuffer = await fetchFile(demoBlob);
 
+        if (demoBlob.size > MAX_VIDEO_SIZE) {
+          throw new Error('Demo video is too large (max 100MB)');
+        }
+
+        const demoBuffer = await fetchFile(demoBlob);
         await ffmpeg.writeFile('demo.mp4', demoBuffer);
+        
+        await checkVideoFile('demo.mp4');
         
         // Create concat file
         const concatContent = 'file output.mp4\nfile demo.mp4';
@@ -487,9 +524,10 @@ const UGCEditor = () => {
           '-i', 'concat.txt',
           '-c:v', 'libx264',
           '-preset', 'fast',
-          '-movflags', '+faststart',
+          '-vf', 'scale=1280:720',
           '-c:a', 'aac',
           '-b:a', '128k',
+          '-movflags', '+faststart',
           '-y',
           'final.mp4'
         ];
@@ -498,6 +536,7 @@ const UGCEditor = () => {
         console.log('Videos merged successfully');
         
         finalVideoPath = 'final.mp4';
+        await checkVideoFile('final.mp4');
       }
 
       // Read final video
