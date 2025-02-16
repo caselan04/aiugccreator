@@ -6,7 +6,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex w-full">
         <DashboardSidebar />
         <main className="flex-1 bg-neutral-100">
-          <div className="p-6 bg-slate-200 hover:bg-slate-100">
+          <div className="p-6 bg-gray-200 hover:bg-gray-100">
             <UGCEditor />
           </div>
         </main>
