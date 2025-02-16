@@ -7,9 +7,7 @@ const Footer = () => {
               <div className="w-8 h-8 bg-primary rounded-full"></div>
               <span className="text-xl font-semibold">ShotPixelAi</span>
             </div>
-            <p className="text-neutral-600 text-sm">
-              Modern SaaS Platform for Businesses
-            </p>
+            <p className="text-neutral-600 text-sm">Automate your content creation at scale.</p>
           </div>
           
           <div>
