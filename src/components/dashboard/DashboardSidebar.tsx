@@ -9,10 +9,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebarContext } from "@/components/ui/sidebar";
 
 const DashboardSidebar = () => {
-  const { isCollapsed } = useSidebar();
+  const { collapsed: isCollapsed } = useSidebarContext();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
