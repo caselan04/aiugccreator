@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
+
 type FontOption = 'default' | 'heading' | 'mono' | 'rounded' | 'condensed' | 'elegant' | 'playful' | 'system-ui' | 'ubuntu' | 'oxygen';
 type HookPosition = 'top' | 'middle' | 'bottom';
 type DemoVideo = {
@@ -560,9 +561,9 @@ const UGCEditor = () => {
   };
   return <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
-      <div className="rounded-2xl p-8 min-h-[600px] bg-white">
+      <div className="bg-neutral-100 rounded-2xl p-8 min-h-[600px]">
         <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-8 bg-white my-0">
+          <div className="space-y-8">
             <div>
               <h2 className="text-base font-medium mb-4 text-neutral-800">1. Text</h2>
               <div className="space-y-4">
@@ -585,7 +586,7 @@ const UGCEditor = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Textarea className={`min-h-[80px] bg-white border border-gray-300 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} placeholder="edit ur text here" value={hookText} onChange={e => setHookText(e.target.value)} rows={3} />
+                <Textarea className={`min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} placeholder="edit ur text here" value={hookText} onChange={e => setHookText(e.target.value)} rows={3} />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map(position => <Button key={position} variant={hookPosition === position ? 'default' : 'outline'} onPress={() => setHookPosition(position)} className={`capitalize flex-1 ${hookPosition !== position ? 'bg-white hover:bg-white/90' : ''}`}>
                       {position}
@@ -670,7 +671,7 @@ const UGCEditor = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="aspect-[9/11] overflow-hidden flex items-center justify-center relative bg-inherit rounded-none">
+            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
               {selectedVideo ? <>
                   <video key={selectedVideo.url} src={selectedVideo.url} autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
                 if (selectedDemoVideo) {
@@ -680,7 +681,7 @@ const UGCEditor = () => {
                   demoVideo?.classList.remove('hidden');
                   demoVideo?.play();
                 }
-              }} className="w-full h-full object-contain bg-inherit" />
+              }} className="w-full h-full object-contain bg-transparent" />
                   {selectedDemoVideo && <video key={selectedDemoVideo.url} src={selectedDemoVideo.url} className="w-full h-full object-contain hidden" muted playsInline controls={false} onEnded={e => {
                 setShowingDemo(false);
                 e.currentTarget.classList.add('hidden');

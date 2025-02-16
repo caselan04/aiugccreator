@@ -1,16 +1,21 @@
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import UGCEditor from "@/components/dashboard/UGCEditor";
+
 const Dashboard = () => {
-  return <SidebarProvider>
+  return (
+    <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <DashboardSidebar />
         <main className="flex-1 bg-neutral-100">
-          <div className="p-6 bg-gray-200 hover:bg-gray-100">
+          <div className="p-6">
             <UGCEditor />
           </div>
         </main>
       </div>
-    </SidebarProvider>;
+    </SidebarProvider>
+  );
 };
+
 export default Dashboard;
