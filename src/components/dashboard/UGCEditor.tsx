@@ -514,27 +514,23 @@ const UGCEditor = () => {
         
         await checkVideoFile('demo.mp4');
         
-        // Create concat file
-        const concatContent = 'file output.mp4\nfile demo.mp4';
-        await ffmpeg.writeFile('concat.txt', concatContent);
-
-        // Merge videos with re-encoding
-        setProcessingStep('Merging videos...');
-        const mergeCommands = [
-          '-f', 'concat',
-          '-safe', '0',
-          '-i', 'concat.txt',
+        // First, ensure both videos have the same dimensions and codec
+        setProcessingStep('Preparing videos for merge...');
+        await ffmpeg.exec([
+          '-i', 'output.mp4',
+          '-i', 'demo.mp4',
+          '-filter_complex', '[0:v]scale=1280:720,setsar=1[v0];[1:v]scale=1280:720,setsar=1[v1];[v0][0:a][v1][1:a]concat=n=2:v=1:a=1[outv][outa]',
+          '-map', '[outv]',
+          '-map', '[outa]',
           '-c:v', 'libx264',
           '-preset', 'fast',
-          '-vf', 'scale=1280:720',
+          '-crf', '23',
           '-c:a', 'aac',
           '-b:a', '128k',
           '-movflags', '+faststart',
-          '-y',
           'final.mp4'
-        ];
+        ]);
 
-        await ffmpeg.exec(mergeCommands);
         console.log('Videos merged successfully');
         
         finalVideoPath = 'final.mp4';
@@ -573,8 +569,6 @@ const UGCEditor = () => {
       await ffmpeg.deleteFile('output.mp4');
       if (selectedDemoVideo) {
         await ffmpeg.deleteFile('demo.mp4');
-        await ffmpeg.deleteFile('concat.txt');
-        await ffmpeg.deleteFile('final.mp4');
       }
 
       toast({
