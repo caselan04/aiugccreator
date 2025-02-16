@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile } from '@ffmpeg/util';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 type HookPosition = 'top' | 'middle' | 'bottom';
 type FontOption = 'sans' | 'serif' | 'mono';
@@ -54,33 +54,34 @@ const UGCEditor = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const ffmpeg = useMemo(() => new FFmpeg(), []);
+  const ffmpeg = useMemo(() => new FFmpeg({
+    log: true,
+    progress: ({ progress, time }) => {
+      setProgress(progress * 100);
+      setProcessingStep(prevStep => 
+        `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`
+      );
+    }
+  }), []);
   const [processingStep, setProcessingStep] = useState('');
   const { toast } = useToast();
-
-  const checkVideoFile = async (filename: string) => {
-    try {
-      await ffmpeg.readFile(filename);
-      console.log(`Video file ${filename} exists`);
-      return true;
-    } catch (error) {
-      throw new Error(`Video file ${filename} is missing`);
-    }
-  };
 
   useEffect(() => {
     const loadFFmpeg = async () => {
       try {
         if (!ffmpeg.loaded) {
           setProcessingStep('Loading FFmpeg...');
-          await ffmpeg.load();
+          await ffmpeg.load({
+            coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
+            wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+          });
           console.log('FFmpeg loaded successfully');
         }
       } catch (error) {
         console.error('Error loading FFmpeg:', error);
         toast({
           title: "Error",
-          description: "Failed to initialize video processor",
+          description: "Failed to initialize video processor. Please ensure you have a stable internet connection.",
           variant: "destructive"
         });
       }
@@ -441,7 +442,10 @@ const UGCEditor = () => {
       // Ensure FFmpeg is loaded
       if (!ffmpeg.loaded) {
         setProcessingStep('Loading FFmpeg...');
-        await ffmpeg.load();
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+        });
       }
 
       // Process avatar video
