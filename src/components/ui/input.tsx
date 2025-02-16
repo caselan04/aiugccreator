@@ -13,9 +13,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       default: "font-sans",
       heading: "font-serif",
       mono: "font-mono",
-      rounded: "font-['Open_Sans']",
-      condensed: "font-['Roboto_Condensed']",
-      elegant: "font-['Playfair_Display']",
+      rounded: "font-open-sans",
+      condensed: "font-roboto-condensed",
+      elegant: "font-playfair",
       playful: "font-['Comic_Sans_MS']"
     }
 
