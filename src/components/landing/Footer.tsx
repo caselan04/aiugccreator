@@ -1,6 +1,5 @@
 const Footer = () => {
-  return (
-    <footer className="border-t border-neutral-200 bg-white">
+  return <footer className="border-t border-neutral-200 bg-white">
       <div className="container-padding py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
@@ -42,9 +41,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-neutral-200 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-neutral-600">
-            © 2024 Lovely. All rights reserved.
-          </p>
+          <p className="text-sm text-neutral-600">© 2025 ShotPixelAi. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="text-neutral-600 hover:text-primary transition-colors">
               Twitter
@@ -58,8 +55,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
