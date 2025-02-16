@@ -585,7 +585,13 @@ const UGCEditor = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Textarea className={`min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} placeholder="edit ur text here" value={hookText} onChange={e => setHookText(e.target.value)} rows={3} />
+                <Textarea
+                  className={`min-h-[80px] bg-white border border-gray-300 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`}
+                  placeholder="edit ur text here"
+                  value={hookText}
+                  onChange={e => setHookText(e.target.value)}
+                  rows={3}
+                />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map(position => <Button key={position} variant={hookPosition === position ? 'default' : 'outline'} onPress={() => setHookPosition(position)} className={`capitalize flex-1 ${hookPosition !== position ? 'bg-white hover:bg-white/90' : ''}`}>
                       {position}
