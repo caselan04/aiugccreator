@@ -641,7 +641,7 @@ const UGCEditor = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 bg-zinc-200 hover:bg-zinc-100">
             <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
               {selectedVideo ? <>
                   <video key={selectedVideo.url} src={selectedVideo.url} autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
