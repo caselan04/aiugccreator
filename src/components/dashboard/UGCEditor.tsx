@@ -52,9 +52,10 @@ const UGCEditor = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const ffmpeg = useMemo(() => new FFmpeg(), []);
   const [processingStep, setProcessingStep] = useState('');
   const { toast } = useToast();
-  const ffmpeg = useMemo(() => new FFmpeg(), []);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadFFmpeg = async () => {
@@ -75,9 +76,7 @@ const UGCEditor = () => {
     };
 
     loadFFmpeg();
-  }, [ffmpeg]);
 
-  useEffect(() => {
     ffmpeg.on('log', ({ message }) => {
       console.log('FFmpeg Log:', message);
     });
@@ -86,7 +85,16 @@ const UGCEditor = () => {
       console.log('FFmpeg Progress:', progress);
       setProgress(progress * 100);
     });
-  }, [ffmpeg]);
+
+    ffmpeg.on('error', ({ message }) => {
+      console.error('FFmpeg Error:', message);
+      toast({
+        title: "Processing Error",
+        description: message,
+        variant: "destructive"
+      });
+    });
+  }, [ffmpeg, toast]);
 
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
@@ -354,6 +362,15 @@ const UGCEditor = () => {
     }
   };
 
+  const getFontName = (font: FontOption) => {
+    const fontMap: Record<FontOption, string> = {
+      'sans': 'Arial',
+      'serif': 'Times New Roman',
+      'mono': 'Courier New'
+    };
+    return fontMap[font];
+  };
+
   const handleGenerateVideo = async () => {
     try {
       if (!selectedVideo) {
@@ -388,6 +405,7 @@ const UGCEditor = () => {
       setIsProcessing(true);
       setProcessingStep('Initializing...');
 
+      // Save initial video details
       const { data: video, error } = await supabase
         .from('videos')
         .insert({
@@ -413,7 +431,7 @@ const UGCEditor = () => {
         await ffmpeg.load();
       }
 
-      // Download and process avatar video
+      // Process avatar video
       setProcessingStep('Processing avatar video...');
       console.log('Downloading avatar video:', selectedVideo.url);
       const avatarResponse = await fetch(selectedVideo.url);
@@ -423,23 +441,34 @@ const UGCEditor = () => {
       await ffmpeg.writeFile('input.mp4', avatarBuffer);
       console.log('Avatar video written to FFmpeg');
 
-      // Add text overlay
-      setProcessingStep('Adding text overlay...');
+      // Calculate text position
       const yPosition = hookPosition === 'top' ? '50' : 
-                       hookPosition === 'middle' ? '(h/2)' : 
-                       'h-60';
+                       hookPosition === 'middle' ? '(h-text_h)/2' : 
+                       '(h-text_h-50)';
 
-      await ffmpeg.exec([
+      // Add text overlay with scaling
+      setProcessingStep('Adding text overlay...');
+      const textCommand = [
         '-i', 'input.mp4',
-        '-vf', `drawtext=text='${hookText}':fontsize=24:fontcolor=white:x=(w-text_w)/2:y=${yPosition}`,
+        '-vf',
+        `scale=1280:720:force_original_aspect_ratio=decrease,` +
+        `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` +
+        `drawtext=text='${hookText.replace(/'/g, "'\\\\''")}':` +
+        `fontsize=24:` +
+        `fontcolor=white:` +
+        `x=(w-text_w)/2:` +
+        `y=${yPosition}:` +
+        `font=${getFontName(selectedFont)}`,
         '-c:a', 'copy',
         'output.mp4'
-      ]);
+      ];
+
+      await ffmpeg.exec(textCommand);
       console.log('Text overlay completed');
 
       let finalVideoPath = 'output.mp4';
 
-      // Handle demo video if present
+      // Handle demo video
       if (selectedDemoVideo) {
         setProcessingStep('Processing demo video...');
         console.log('Downloading demo video:', selectedDemoVideo.url);
@@ -449,25 +478,34 @@ const UGCEditor = () => {
 
         await ffmpeg.writeFile('demo.mp4', demoBuffer);
         
-        // Create concatenation list
+        // Create concat file
         const concatContent = 'file output.mp4\nfile demo.mp4';
         await ffmpeg.writeFile('concat.txt', concatContent);
 
+        // Merge videos with re-encoding
         setProcessingStep('Merging videos...');
-        await ffmpeg.exec([
+        const mergeCommands = [
           '-f', 'concat',
           '-safe', '0',
           '-i', 'concat.txt',
-          '-c', 'copy',
+          '-c:v', 'libx264',
+          '-preset', 'fast',
+          '-movflags', '+faststart',
+          '-c:a', 'aac',
+          '-b:a', '128k',
+          '-y',
           'final.mp4'
-        ]);
+        ];
+
+        await ffmpeg.exec(mergeCommands);
         console.log('Videos merged successfully');
         
         finalVideoPath = 'final.mp4';
       }
 
-      // Read the processed video
+      // Read final video
       setProcessingStep('Preparing final video...');
+      console.log('Reading final video');
       const processedData = await ffmpeg.readFile(finalVideoPath);
       const finalBlob = new Blob([processedData], { type: 'video/mp4' });
       console.log('Final video size:', finalBlob.size);
@@ -491,6 +529,15 @@ const UGCEditor = () => {
         .eq('id', video.id);
 
       if (updateError) throw updateError;
+
+      // Cleanup FFmpeg files
+      await ffmpeg.deleteFile('input.mp4');
+      await ffmpeg.deleteFile('output.mp4');
+      if (selectedDemoVideo) {
+        await ffmpeg.deleteFile('demo.mp4');
+        await ffmpeg.deleteFile('concat.txt');
+        await ffmpeg.deleteFile('final.mp4');
+      }
 
       toast({
         title: "Success",
