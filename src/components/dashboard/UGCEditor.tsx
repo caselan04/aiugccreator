@@ -54,15 +54,7 @@ const UGCEditor = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const ffmpeg = useMemo(() => new FFmpeg({
-    log: true,
-    progress: ({ progress, time }) => {
-      setProgress(progress * 100);
-      setProcessingStep(prevStep => 
-        `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`
-      );
-    }
-  }), []);
+  const ffmpeg = useMemo(() => new FFmpeg(), []);
   const [processingStep, setProcessingStep] = useState('');
   const { toast } = useToast();
 
@@ -89,6 +81,7 @@ const UGCEditor = () => {
 
     loadFFmpeg();
 
+    // Set up FFmpeg event handlers
     ffmpeg.on('log', ({ message }) => {
       console.log('FFmpeg Log:', message);
       if (message.toLowerCase().includes('error')) {
@@ -100,10 +93,9 @@ const UGCEditor = () => {
       }
     });
 
-    ffmpeg.on('progress', ({ progress }) => {
+    ffmpeg.on('progress', ({ progress, time }) => {
       console.log('FFmpeg Progress:', progress);
       setProgress(progress * 100);
-      // Update step with percentage
       setProcessingStep(prevStep => 
         `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`
       );
