@@ -11,7 +11,7 @@ const Hero = () => {
         y: 0
       }} transition={{
         duration: 0.5
-      }}>Generate Ai UGC videos</motion.h1>
+      }}>Create a zoomer marketing army with Ai UGC videos</motion.h1>
         <motion.p className="text-xl text-neutral-600 mb-8" initial={{
         opacity: 0,
         y: 20
