@@ -1,3 +1,4 @@
+
 const Footer = () => {
   return <footer className="border-t border-neutral-200 bg-white">
       <div className="container-padding py-12 md:py-16">
@@ -41,15 +42,6 @@ const Footer = () => {
         <div className="border-t border-neutral-200 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-neutral-600">© 2025 ShotPixelAi. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="text-neutral-600 hover:text-primary transition-colors">
-              Twitter
-            </a>
-            <a href="#" className="text-neutral-600 hover:text-primary transition-colors">
-              GitHub
-            </a>
-            <a href="#" className="text-neutral-600 hover:text-primary transition-colors">
-              Discord
-            </a>
           </div>
         </div>
       </div>
