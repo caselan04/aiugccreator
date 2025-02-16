@@ -1,4 +1,7 @@
+
 import { motion } from "framer-motion";
+import { Component as EmailInput } from "@/components/ui/code.demo";
+
 const Hero = () => {
   return <header className="container-padding py-12">
       {/* Hero content */}
@@ -24,7 +27,7 @@ const Hero = () => {
       }}>
           A powerful and flexible platform designed for modern businesses and startups.
         </motion.p>
-        <motion.div className="flex flex-wrap justify-center gap-4" initial={{
+        <motion.div className="flex justify-center" initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -34,14 +37,10 @@ const Hero = () => {
         duration: 0.5,
         delay: 0.4
       }}>
-          <button className="button-primary flex items-center gap-2">
-            Get Started Now
-          </button>
-          <button className="px-6 py-3 border border-neutral-300 rounded-lg hover:bg-neutral-200/50 transition-colors">
-            Learn More
-          </button>
+          <EmailInput />
         </motion.div>
       </div>
     </header>;
 };
+
 export default Hero;
