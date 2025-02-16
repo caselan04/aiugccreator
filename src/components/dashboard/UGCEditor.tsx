@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
-
 type FontOption = 'default' | 'heading' | 'mono' | 'rounded' | 'condensed' | 'elegant' | 'playful' | 'system-ui' | 'ubuntu' | 'oxygen';
 type HookPosition = 'top' | 'middle' | 'bottom';
 type DemoVideo = {
@@ -671,7 +670,7 @@ const UGCEditor = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="aspect-[9/11] bg-neutral-200 rounded-3xl overflow-hidden flex items-center justify-center relative">
+            <div className="aspect-[9/11] rounded-3xl overflow-hidden flex items-center justify-center relative bg-gray-200 hover:bg-gray-100">
               {selectedVideo ? <>
                   <video key={selectedVideo.url} src={selectedVideo.url} autoPlay muted loop={!selectedDemoVideo} playsInline controls={false} onEnded={e => {
                 if (selectedDemoVideo) {
