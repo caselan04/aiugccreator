@@ -5,7 +5,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-6">
               <div className="w-8 h-8 bg-primary rounded-full"></div>
-              <span className="text-xl font-semibold">Lovely</span>
+              <span className="text-xl font-semibold">ShotPixelAi</span>
             </div>
             <p className="text-neutral-600 text-sm">
               Modern SaaS Platform for Businesses
