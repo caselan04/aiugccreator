@@ -56,7 +56,7 @@ const Hero = () => {
           <div className="relative w-full max-w-md">
             <input
               type="email"
-              placeholder="Join the Waitlist"
+              placeholder="you@example.co"
               className="w-full px-6 py-4 rounded-full bg-white shadow-lg text-gray-800 outline-none"
             />
             <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-opacity">
