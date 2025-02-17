@@ -53,7 +53,7 @@ const Hero = () => {
       {/* Gradient background */}
       <div style={{
       background: "linear-gradient(45deg, #ff99cc, #9b87f5, #61AAF2)"
-    }} className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-400 opacity-90 bg-inherit rounded-lg px-0 mx-[10px] md:mx-[40px] my-0" />
+    }} className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-400 opacity-90 bg-inherit rounded-lg px-0 mx-[40px] my-0" />
       
       {/* Grid overlay */}
       <div style={{
@@ -100,7 +100,7 @@ const Hero = () => {
         duration: 0.5,
         delay: 0.4
       }}>
-          <form onSubmit={handleSubmit} className="relative w-full max-w-md">
+          <form onSubmit={handleSubmit} className="relative w-full max-w-md mb-8">
             <input 
               type="email" 
               placeholder="you@example.com" 
@@ -115,6 +115,29 @@ const Hero = () => {
               {loading ? "Joining..." : "Join Waitlist →"}
             </button>
           </form>
+
+          {/* Video Section */}
+          <motion.div 
+            className="w-full max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <video 
+              className="w-full rounded-lg shadow-xl"
+              controls
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source 
+                src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_82E1E6EA-EAB9-4AF7-8383-9CA10BD913B1.MOV" 
+                type="video/mp4" 
+              />
+              Your browser does not support the video tag.
+            </video>
+          </motion.div>
         </motion.div>
       </div>
     </header>;
