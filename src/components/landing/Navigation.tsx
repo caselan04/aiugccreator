@@ -1,8 +1,6 @@
-
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { motion } from "framer-motion";
-
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return <nav className="w-full bg-white">
@@ -16,7 +14,7 @@ const Navigation = () => {
           <button className="px-4 py-2 text-primary hover:text-primary/80 transition-colors font-medium">
             Log in
           </button>
-          <button className="button-secondary">
+          <button className="button-secondary bg-purple-700 hover:bg-purple-600 py-[6px] px-[9px] my-0">
             Try for Free
           </button>
         </div>
@@ -52,5 +50,4 @@ const Navigation = () => {
         </motion.div>}
     </nav>;
 };
-
 export default Navigation;
