@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return <header className="min-h-screen relative overflow-hidden">
       {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-400 opacity-90" style={{
+      <div style={{
       background: "linear-gradient(45deg, #ff99cc, #9b87f5, #61AAF2)"
-    }} />
+    }} className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-400 opacity-90 bg-inherit rounded-lg px-0 mx-[40px] my-[60px]" />
       
       {/* Grid overlay */}
       <div style={{
