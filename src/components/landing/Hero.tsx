@@ -42,9 +42,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Say good-bye to boring link-in-bios. Build a micro-site
-          <br />
-          that can do everything and more.
+          Deploy Scalable AI Content Factories for 24/7 UGC Production.
         </motion.p>
 
         <motion.div
