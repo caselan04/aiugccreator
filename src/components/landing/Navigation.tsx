@@ -11,7 +11,7 @@ const Navigation = () => {
         </div>
         
         <div className="hidden md:flex items-center gap-4">
-          <button className="px-4 py-2 text-primary hover:text-primary/80 transition-colors font-medium">
+          <button className="px-4 py-2 transition-colors font-medium rounded-none text-black">
             Log in
           </button>
           <button className="button-secondary bg-purple-700 hover:bg-purple-600 py-[6px] px-[9px] my-0">
