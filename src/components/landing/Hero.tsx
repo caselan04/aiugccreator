@@ -116,28 +116,51 @@ const Hero = () => {
             </button>
           </form>
 
-          {/* Video Section */}
+          {/* Videos Section */}
           <motion.div 
-            className="w-full max-w-[300px] mx-auto"
+            className="flex justify-center gap-4 w-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <div className="relative w-full pt-[177.78%]">
-              <video 
-                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
-                controls
-                autoPlay
-                muted
-                loop
-                playsInline
-              >
-                <source 
-                  src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_82E1E6EA-EAB9-4AF7-8383-9CA10BD913B1.MOV" 
-                  type="video/mp4" 
-                />
-                Your browser does not support the video tag.
-              </video>
+            {/* First Video */}
+            <div className="w-full max-w-[300px]">
+              <div className="relative w-full pt-[177.78%]">
+                <video 
+                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source 
+                    src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_D0AFDAC2-1D6C-4973-92C2-77DB34E47B07.MOV" 
+                    type="video/mp4" 
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+
+            {/* Second Video */}
+            <div className="w-full max-w-[300px]">
+              <div className="relative w-full pt-[177.78%]">
+                <video 
+                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source 
+                    src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_82E1E6EA-EAB9-4AF7-8383-9CA10BD913B1.MOV" 
+                    type="video/mp4" 
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
             </div>
           </motion.div>
         </motion.div>
