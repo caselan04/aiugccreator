@@ -111,7 +111,7 @@ const Hero = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-20 py-8 md:px-24 md:py-8 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? "Joining..." : "Join Waitlist →"}
             </button>
           </form>
