@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,7 +127,6 @@ const Hero = () => {
               <div className="relative w-full pt-[177.78%]">
                 <video 
                   className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
-                  controls
                   autoPlay
                   muted
                   loop
@@ -148,7 +146,6 @@ const Hero = () => {
               <div className="relative w-full pt-[177.78%]">
                 <video 
                   className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
-                  controls
                   autoPlay
                   muted
                   loop
@@ -168,7 +165,6 @@ const Hero = () => {
               <div className="relative w-full pt-[177.78%]">
                 <video 
                   className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
-                  controls
                   autoPlay
                   muted
                   loop
