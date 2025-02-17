@@ -63,9 +63,6 @@ const Hero = () => {
               Join Waitlist →
             </button>
           </div>
-          <Link to="/auth" className="text-white/80 hover:text-white transition-colors">
-            Already have an account? Login
-          </Link>
         </motion.div>
       </div>
     </header>
