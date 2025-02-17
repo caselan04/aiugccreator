@@ -162,6 +162,26 @@ const Hero = () => {
                 </video>
               </div>
             </div>
+
+            {/* Third Video */}
+            <div className="w-full max-w-[300px]">
+              <div className="relative w-full pt-[177.78%]">
+                <video 
+                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source 
+                    src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_54FC074B-25CC-4B11-B73E-A566312F869E.MOV" 
+                    type="video/mp4" 
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </div>
