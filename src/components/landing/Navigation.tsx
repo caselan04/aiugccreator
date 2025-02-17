@@ -12,13 +12,6 @@ const Navigation = () => {
           <span className="text-xl font-semibold">ShotPixelAi</span>
         </div>
         
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-neutral-600 hover:text-primary transition-colors font-medium">Features</a>
-          <a href="#pricing" className="text-neutral-600 hover:text-primary transition-colors font-medium">Pricing</a>
-          <a href="#about" className="text-neutral-600 hover:text-primary transition-colors font-medium">Affiliate</a>
-        </div>
-        
         <div className="hidden md:flex items-center gap-4">
           <button className="px-4 py-2 text-primary hover:text-primary/80 transition-colors font-medium">
             Log in
