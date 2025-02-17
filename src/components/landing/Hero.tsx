@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Component as EmailInput } from "@/components/ui/code.demo";
 import { Link } from "react-router-dom";
 const Hero = () => {
-  return <header className="min-h-screen relative overflow-hidden">
+  return <header className="min-h-screen relative overflow-hidden bg-white">
       {/* Gradient background */}
       <div style={{
       background: "linear-gradient(45deg, #ff99cc, #9b87f5, #61AAF2)"
