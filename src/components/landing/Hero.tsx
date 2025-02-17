@@ -118,25 +118,27 @@ const Hero = () => {
 
           {/* Video Section */}
           <motion.div 
-            className="w-full max-w-2xl mx-auto"
+            className="w-full max-w-[300px] mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <video 
-              className="w-full rounded-lg shadow-xl"
-              controls
-              autoPlay
-              muted
-              loop
-              playsInline
-            >
-              <source 
-                src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_82E1E6EA-EAB9-4AF7-8383-9CA10BD913B1.MOV" 
-                type="video/mp4" 
-              />
-              Your browser does not support the video tag.
-            </video>
+            <div className="relative w-full pt-[177.78%]">
+              <video 
+                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-xl object-cover"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source 
+                  src="https://pkcbkbtfwgoghldrdvfi.supabase.co/storage/v1/object/public/waistlistvids//copy_82E1E6EA-EAB9-4AF7-8383-9CA10BD913B1.MOV" 
+                  type="video/mp4" 
+                />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </motion.div>
         </motion.div>
       </div>
