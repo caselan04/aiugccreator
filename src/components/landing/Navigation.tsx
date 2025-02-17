@@ -8,7 +8,7 @@ const Navigation = () => {
   return <nav className="w-full bg-white">
       <div className="mx-[40px] px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="/lovable-uploads/5cd303ab-74b9-455c-b9d4-f1c860b94c8a.png" alt="ShotPixelAi Logo" className="w-10 h-10 object-fill" />
+          <img src="/lovable-uploads/796f8416-3973-49e7-9bbf-aacf9058b828.png" alt="ShotPixelAi Logo" className="w-10 h-10 object-fill" />
           <span className="text-xl font-semibold">ShotPixelAi</span>
         </div>
         
