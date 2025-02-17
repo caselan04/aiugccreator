@@ -8,7 +8,7 @@ const Navigation = () => {
 
   return (
     <nav className="w-full bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="mx-[40px] px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-full"></div>
           <span className="text-xl font-semibold">ShotPixelAi</span>
@@ -39,7 +39,7 @@ const Navigation = () => {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <motion.div 
-          className="md:hidden bg-white border-t border-neutral-100 p-4"
+          className="md:hidden bg-white border-t border-neutral-100 p-4 mx-[40px]"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
