@@ -1,7 +1,54 @@
+
 import { motion } from "framer-motion";
-import { Component as EmailInput } from "@/components/ui/code.demo";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+
 const Hero = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{ email }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "You've been added to our waitlist. We'll be in touch soon!",
+      });
+      
+      setEmail(""); // Clear the input
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message === "duplicate key value violates unique constraint \"waitlist_email_key\""
+          ? "This email is already on our waitlist!"
+          : "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return <header className="min-h-screen relative overflow-hidden bg-white">
       {/* Gradient background */}
       <div style={{
@@ -53,14 +100,24 @@ const Hero = () => {
         duration: 0.5,
         delay: 0.4
       }}>
-          <div className="relative w-full max-w-md">
-            <input type="email" placeholder="you@example.com" className="w-full px-6 py-4 rounded-full bg-white shadow-lg text-gray-800 outline-none" />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-opacity">
-              Join Waitlist →
+          <form onSubmit={handleSubmit} className="relative w-full max-w-md">
+            <input 
+              type="email" 
+              placeholder="you@example.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-6 py-4 rounded-full bg-white shadow-lg text-gray-800 outline-none" 
+            />
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? "Joining..." : "Join Waitlist →"}
             </button>
-          </div>
+          </form>
         </motion.div>
       </div>
     </header>;
 };
+
 export default Hero;
