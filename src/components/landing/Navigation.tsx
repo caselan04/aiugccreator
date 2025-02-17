@@ -10,7 +10,11 @@ const Navigation = () => {
     <nav className="w-full bg-white">
       <div className="mx-[40px] px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-full"></div>
+          <img 
+            src="/lovable-uploads/5cd303ab-74b9-455c-b9d4-f1c860b94c8a.png" 
+            alt="ShotPixelAi Logo" 
+            className="w-8 h-8"
+          />
           <span className="text-xl font-semibold">ShotPixelAi</span>
         </div>
         
