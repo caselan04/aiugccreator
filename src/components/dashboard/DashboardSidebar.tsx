@@ -123,7 +123,7 @@ const DashboardSidebar = () => {
                     )}
                   >
                     <HelpCircle className="w-5 h-5" />
-                    Support
+                    Custom UGC video
                   </Button>
                 </Link>
                 <Link to="/settings">
