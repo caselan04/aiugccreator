@@ -32,9 +32,6 @@ const DashboardContent = () => {
           {/* Right section */}
           <div className="flex items-center gap-4 ml-auto">
             <Button variant="ghost" size="icon">
-              <Bell className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
               <Settings className="w-5 h-5" />
             </Button>
             <div className="w-8 h-8 rounded-full bg-neutral-200" />
