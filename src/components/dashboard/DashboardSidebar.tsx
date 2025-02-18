@@ -6,7 +6,6 @@ import {
   Menu,
   X,
   UserRound,
-  HelpCircle,
   Wand2,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -122,7 +121,7 @@ const DashboardSidebar = () => {
                       location.pathname === "/support" && "bg-neutral-100"
                     )}
                   >
-                    <HelpCircle className="w-5 h-5" />
+                    <Video className="w-5 h-5" />
                     Custom UGC video
                   </Button>
                 </Link>
