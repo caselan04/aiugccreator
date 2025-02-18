@@ -44,7 +44,7 @@ const DashboardContent = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative w-8 h-8 rounded-full">
-                  <div className="w-8 h-8 rounded-full bg-neutral-200" />
+                  <UserRound className="w-6 h-6" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
