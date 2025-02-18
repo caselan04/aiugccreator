@@ -43,8 +43,8 @@ const DashboardContent = () => {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative w-8 h-8 rounded-full">
-                  <UserRound className="w-6 h-6" />
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <UserRound className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
