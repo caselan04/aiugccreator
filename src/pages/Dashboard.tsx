@@ -23,7 +23,7 @@ const DashboardContent = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={openMobileMenu}
+            onPress={openMobileMenu}
             className="lg:hidden"
           >
             <Menu className="w-5 h-5" />
