@@ -2,7 +2,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import UGCEditor from "@/components/dashboard/UGCEditor";
-import { Settings, UserRound, LineChart, CreditCard, LogOut } from "lucide-react";
+import { UserRound, LineChart, CreditCard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarContext } from "@/components/ui/sidebar";
 import {
@@ -24,9 +24,6 @@ const DashboardContent = () => {
         <div className="h-16 border-b border-neutral-200 px-6 flex items-center justify-between bg-white">
           {/* Right section */}
           <div className="flex items-center gap-4 ml-auto">
-            <Button variant="ghost" size="icon">
-              <Settings className="w-5 h-5" />
-            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <div className="cursor-pointer p-2 hover:bg-gray-100 rounded-full">
