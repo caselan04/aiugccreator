@@ -69,7 +69,7 @@ const DashboardSidebar = () => {
                     )}
                   >
                     <Video className="w-5 h-5" />
-                    Create Video
+                    Create UGC Video
                   </Button>
                 </Link>
                 <Link to="/hook-generator">
