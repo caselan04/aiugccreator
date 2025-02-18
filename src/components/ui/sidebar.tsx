@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -6,11 +7,15 @@ import { cn } from "@/lib/utils";
 type SidebarContextType = {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  showMobileMenu: boolean;
+  setShowMobileMenu: (show: boolean) => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextType>({
   collapsed: false,
   setCollapsed: () => {},
+  showMobileMenu: false,
+  setShowMobileMenu: () => {},
 });
 
 export const useSidebarContext = () => {
@@ -23,8 +28,17 @@ export const useSidebarContext = () => {
 
 export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = React.useState(false);
+  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+
   return (
-    <SidebarContext.Provider value={{ collapsed, setCollapsed }}>
+    <SidebarContext.Provider 
+      value={{ 
+        collapsed, 
+        setCollapsed, 
+        showMobileMenu, 
+        setShowMobileMenu 
+      }}
+    >
       {children}
     </SidebarContext.Provider>
   );

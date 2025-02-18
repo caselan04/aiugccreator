@@ -15,15 +15,20 @@ import { cn } from "@/lib/utils";
 
 const DashboardSidebar = () => {
   const location = useLocation();
-  const { collapsed, setCollapsed } = useSidebarContext();
+  const { collapsed, setCollapsed, showMobileMenu, setShowMobileMenu } = useSidebarContext();
+
+  const closeSidebar = () => {
+    setCollapsed(true);
+    setShowMobileMenu(false);
+  };
 
   return (
     <>
       {/* Mobile overlay */}
-      {!collapsed && (
+      {!collapsed && showMobileMenu && (
         <div
           className="fixed inset-0 bg-black/20 z-20 lg:hidden"
-          onClick={() => setCollapsed(true)}
+          onClick={closeSidebar}
         />
       )}
 
@@ -31,12 +36,12 @@ const DashboardSidebar = () => {
       <div
         className={cn(
           "fixed lg:static inset-y-0 left-0 w-[280px] bg-white border-r border-neutral-200 z-30 transition-transform lg:transition-none duration-300 lg:translate-x-0",
-          collapsed && "-translate-x-full"
+          collapsed && !showMobileMenu && "-translate-x-full"
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="h-[60px] flex items-center justify-between px-6 border-b border-neutral-200">
+          <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-200">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-full" />
               <span className="font-semibold">ShotPixelAi</span>
@@ -44,7 +49,7 @@ const DashboardSidebar = () => {
             <Button
               variant="ghost"
               size="icon"
-              onPress={() => setCollapsed(true)}
+              onPress={closeSidebar}
               className="lg:hidden"
             >
               <X className="w-5 h-5" />
@@ -136,19 +141,6 @@ const DashboardSidebar = () => {
           </div>
         </div>
       </div>
-
-      {/* Toggle button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onPress={() => setCollapsed(false)}
-        className={cn(
-          "fixed top-4 left-4 z-40 lg:hidden",
-          !collapsed && "hidden"
-        )}
-      >
-        <Menu className="w-5 h-5" />
-      </Button>
     </>
   );
 };
