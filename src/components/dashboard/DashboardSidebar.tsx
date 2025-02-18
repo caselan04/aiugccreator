@@ -41,7 +41,7 @@ const DashboardSidebar = () => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-200">
+          <div className="h-16 flex items-center justify-between px-6">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-full" />
               <span className="font-semibold">ShotPixelAi</span>
