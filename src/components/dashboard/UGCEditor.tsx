@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
-
 type FontOption = 'default' | 'heading' | 'mono' | 'rounded' | 'condensed' | 'elegant' | 'playful' | 'system-ui' | 'ubuntu' | 'oxygen';
 type HookPosition = 'top' | 'middle' | 'bottom';
 type DemoVideo = {
@@ -22,7 +21,6 @@ type DemoVideo = {
   url?: string;
   user_id?: string;
 };
-
 const MAX_VIDEO_SIZE = 100_000_000; // 100MB
 
 const UGCEditor = () => {
@@ -53,7 +51,6 @@ const UGCEditor = () => {
   const {
     toast
   } = useToast();
-
   const checkVideoFile = async (filename: string) => {
     try {
       await ffmpeg.readFile(filename);
@@ -63,7 +60,6 @@ const UGCEditor = () => {
       throw new Error(`Video file ${filename} is missing`);
     }
   };
-
   useEffect(() => {
     const loadFFmpeg = async () => {
       try {
@@ -102,7 +98,6 @@ const UGCEditor = () => {
       setProcessingStep(prevStep => `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`);
     });
   }, [ffmpeg, toast]);
-
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
   const currentVideos = useMemo(() => {
@@ -110,13 +105,11 @@ const UGCEditor = () => {
     const endIndex = startIndex + itemsPerPage;
     return avatarVideos.slice(startIndex, endIndex);
   }, [avatarVideos, currentPage, itemsPerPage]);
-
   useEffect(() => {
     checkAuth();
     fetchAvatarVideos();
     fetchDemoVideos();
   }, []);
-
   const checkAuth = async () => {
     const {
       data: {
@@ -132,7 +125,6 @@ const UGCEditor = () => {
       navigate("/auth");
     }
   };
-
   const fetchAvatarVideos = async () => {
     try {
       setIsLoading(true);
@@ -204,7 +196,6 @@ const UGCEditor = () => {
       setIsLoading(false);
     }
   };
-
   const fetchDemoVideos = async () => {
     try {
       const {
@@ -241,7 +232,6 @@ const UGCEditor = () => {
       });
     }
   };
-
   const handleDemoUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -300,11 +290,9 @@ const UGCEditor = () => {
       setIsUploading(false);
     }
   };
-
   const handleRemoveDemo = async () => {
     setSelectedDemoVideo(null);
   };
-
   const handleDeleteDemo = async (demo: DemoVideo, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isDeleting) return;
@@ -356,7 +344,6 @@ const UGCEditor = () => {
       setIsDeleting(false);
     }
   };
-
   const getFontClass = (font: FontOption) => {
     switch (font) {
       case 'heading':
@@ -381,7 +368,6 @@ const UGCEditor = () => {
         return 'font-sans';
     }
   };
-
   const getFontName = (font: FontOption) => {
     const fontMap: Record<FontOption, string> = {
       'default': 'Arial',
@@ -397,7 +383,6 @@ const UGCEditor = () => {
     };
     return fontMap[font];
   };
-
   const handleGenerateVideo = async () => {
     try {
       if (!selectedVideo) {
@@ -484,22 +469,7 @@ const UGCEditor = () => {
 
       // Add text overlay with scaling but without font specification
       setProcessingStep('Adding text overlay...');
-      const textCommand = [
-        '-i', 'input.mp4',
-        '-vf',
-        `scale=1280:720:force_original_aspect_ratio=decrease,` +
-        `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` +
-        `drawtext=text='${hookText.replace(/'/g, "'\\\\''")}':` +
-        `fontsize=24:` +
-        `fontcolor=white:` +
-        `x=(w-text_w)/2:` +
-        `y=${yPosition}`,
-        '-map', '0:v',
-        '-map', '0:a?',
-        '-c:a', 'aac',
-        '-b:a', '128k',
-        'output.mp4'
-      ];
+      const textCommand = ['-i', 'input.mp4', '-vf', `scale=1280:720:force_original_aspect_ratio=decrease,` + `pad=1280:720:(ow-iw)/2:(oh-ih)/2,` + `drawtext=text='${hookText.replace(/'/g, "'\\\\''")}':` + `fontsize=24:` + `fontcolor=white:` + `x=(w-text_w)/2:` + `y=${yPosition}`, '-map', '0:v', '-map', '0:a?', '-c:a', 'aac', '-b:a', '128k', 'output.mp4'];
       await ffmpeg.exec(textCommand);
       console.log('Text overlay completed');
 
@@ -587,10 +557,9 @@ const UGCEditor = () => {
       setProcessingStep('');
     }
   };
-
   return <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
-      <div className="rounded-2xl p-8 min-h-[600px] bg-gray-200 hover:bg-gray-100">
+      <div className="rounded-2xl p-8 min-h-[600px] bg-inherit">
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-8">
             <div>
@@ -741,5 +710,4 @@ const UGCEditor = () => {
         </div>}
     </div>;
 };
-
 export default UGCEditor;
