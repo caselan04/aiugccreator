@@ -2,7 +2,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import UGCEditor from "@/components/dashboard/UGCEditor";
-import { Settings, Menu, UserRound, LineChart, CreditCard, LogOut } from "lucide-react";
+import { Settings, UserRound, LineChart, CreditCard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarContext } from "@/components/ui/sidebar";
 import {
@@ -16,26 +16,12 @@ import { Link } from "react-router-dom";
 const DashboardContent = () => {
   const { setCollapsed, setShowMobileMenu } = useSidebarContext();
 
-  const openMobileMenu = () => {
-    setCollapsed(false);
-    setShowMobileMenu(true);
-  };
-
   return (
     <div className="min-h-screen flex w-full">
       <DashboardSidebar />
       <main className="flex-1">
         {/* Top Navigation Bar */}
         <div className="h-16 border-b border-neutral-200 px-6 flex items-center justify-between bg-white">
-          <Button
-            variant="ghost"
-            size="icon"
-            onPress={openMobileMenu}
-            className="lg:hidden"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-
           {/* Right section */}
           <div className="flex items-center gap-4 ml-auto">
             <Button variant="ghost" size="icon">
