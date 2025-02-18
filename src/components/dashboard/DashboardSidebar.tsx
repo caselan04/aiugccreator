@@ -35,7 +35,7 @@ const DashboardSidebar = () => {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed lg:static inset-y-0 left-0 w-[280px] bg-white border-r border-neutral-200 z-30 transition-transform lg:transition-none duration-300 lg:translate-x-0",
+          "fixed lg:static inset-y-0 left-0 w-[280px] bg-white z-30 transition-transform lg:transition-none duration-300 lg:translate-x-0",
           collapsed && !showMobileMenu && "-translate-x-full"
         )}
       >
