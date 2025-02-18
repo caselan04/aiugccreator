@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate } from "react-router-dom";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
+
 type FontOption = 'default' | 'heading' | 'mono' | 'rounded' | 'condensed' | 'elegant' | 'playful' | 'system-ui' | 'ubuntu' | 'oxygen';
 type HookPosition = 'top' | 'middle' | 'bottom';
 type DemoVideo = {
@@ -21,6 +22,7 @@ type DemoVideo = {
   url?: string;
   user_id?: string;
 };
+
 const MAX_VIDEO_SIZE = 100_000_000; // 100MB
 
 const UGCEditor = () => {
@@ -51,6 +53,7 @@ const UGCEditor = () => {
   const {
     toast
   } = useToast();
+
   const checkVideoFile = async (filename: string) => {
     try {
       await ffmpeg.readFile(filename);
@@ -60,6 +63,7 @@ const UGCEditor = () => {
       throw new Error(`Video file ${filename} is missing`);
     }
   };
+
   useEffect(() => {
     const loadFFmpeg = async () => {
       try {
@@ -98,6 +102,7 @@ const UGCEditor = () => {
       setProcessingStep(prevStep => `${prevStep.split(':')[0]}: ${Math.round(progress * 100)}%`);
     });
   }, [ffmpeg, toast]);
+
   const itemsPerPage = 33;
   const totalPages = Math.ceil(avatarVideos.length / itemsPerPage);
   const currentVideos = useMemo(() => {
@@ -105,11 +110,13 @@ const UGCEditor = () => {
     const endIndex = startIndex + itemsPerPage;
     return avatarVideos.slice(startIndex, endIndex);
   }, [avatarVideos, currentPage, itemsPerPage]);
+
   useEffect(() => {
     checkAuth();
     fetchAvatarVideos();
     fetchDemoVideos();
   }, []);
+
   const checkAuth = async () => {
     const {
       data: {
@@ -125,6 +132,7 @@ const UGCEditor = () => {
       navigate("/auth");
     }
   };
+
   const fetchAvatarVideos = async () => {
     try {
       setIsLoading(true);
@@ -196,6 +204,7 @@ const UGCEditor = () => {
       setIsLoading(false);
     }
   };
+
   const fetchDemoVideos = async () => {
     try {
       const {
@@ -232,6 +241,7 @@ const UGCEditor = () => {
       });
     }
   };
+
   const handleDemoUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -290,9 +300,11 @@ const UGCEditor = () => {
       setIsUploading(false);
     }
   };
+
   const handleRemoveDemo = async () => {
     setSelectedDemoVideo(null);
   };
+
   const handleDeleteDemo = async (demo: DemoVideo, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isDeleting) return;
@@ -344,6 +356,7 @@ const UGCEditor = () => {
       setIsDeleting(false);
     }
   };
+
   const getFontClass = (font: FontOption) => {
     switch (font) {
       case 'heading':
@@ -368,6 +381,7 @@ const UGCEditor = () => {
         return 'font-sans';
     }
   };
+
   const getFontName = (font: FontOption) => {
     const fontMap: Record<FontOption, string> = {
       'default': 'Arial',
@@ -383,6 +397,7 @@ const UGCEditor = () => {
     };
     return fontMap[font];
   };
+
   const handleGenerateVideo = async () => {
     try {
       if (!selectedVideo) {
@@ -557,6 +572,7 @@ const UGCEditor = () => {
       setProcessingStep('');
     }
   };
+
   return <div className="max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-semibold text-neutral-900 mb-6">Create UGC ads</h1>
       <div className="rounded-2xl p-8 min-h-[600px] bg-inherit">
@@ -584,7 +600,13 @@ const UGCEditor = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Textarea className={`min-h-[80px] bg-white border-transparent rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} placeholder="edit ur text here" value={hookText} onChange={e => setHookText(e.target.value)} rows={3} />
+                <Textarea 
+                  className={`min-h-[80px] bg-white border border-neutral-200 rounded-2xl text-center resize-none ${getFontClass(selectedFont)}`} 
+                  placeholder="edit ur text here" 
+                  value={hookText} 
+                  onChange={e => setHookText(e.target.value)} 
+                  rows={3} 
+                />
                 <div className="flex gap-2">
                   {(['top', 'middle', 'bottom'] as HookPosition[]).map(position => <Button key={position} variant={hookPosition === position ? 'default' : 'outline'} onPress={() => setHookPosition(position)} className={`capitalize flex-1 ${hookPosition !== position ? 'bg-white hover:bg-white/90' : ''}`}>
                       {position}
@@ -710,4 +732,5 @@ const UGCEditor = () => {
         </div>}
     </div>;
 };
+
 export default UGCEditor;
