@@ -111,7 +111,7 @@ const DashboardSidebar = () => {
                     )}
                   >
                     <UserRound className="w-5 h-5" />
-                    Profile
+                    Custom UGC model
                   </Button>
                 </Link>
                 <Link to="/support">
