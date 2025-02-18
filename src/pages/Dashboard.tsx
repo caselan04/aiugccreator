@@ -30,7 +30,7 @@ const DashboardContent = () => {
           </Button>
 
           {/* Right section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 ml-auto">
             <Button variant="ghost" size="icon">
               <Bell className="w-5 h-5" />
             </Button>
