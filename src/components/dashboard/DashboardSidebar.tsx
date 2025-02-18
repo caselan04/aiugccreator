@@ -1,5 +1,5 @@
 
-import { TabsTrigger } from "@radix-ui/react-tabs";
+import { TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
 import { Brush, Home, UserCircle2, VideoIcon } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
@@ -17,42 +17,44 @@ const DashboardSidebar = () => {
         </Link>
 
         <Tabs orientation="vertical" defaultValue={location.pathname}>
-          <TabsTrigger value="/" asChild>
-            <Link
-              to="/"
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors",
-                location.pathname === "/" && "bg-neutral-100"
-              )}
-            >
-              <Home className="w-5 h-5" />
-              <span>Home</span>
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="/hook-generator" asChild>
-            <Link
-              to="/hook-generator"
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors",
-                location.pathname === "/hook-generator" && "bg-neutral-100"
-              )}
-            >
-              <Brush className="w-5 h-5" />
-              <span>Hook Generator</span>
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="/videos" asChild>
-            <Link
-              to="/videos"
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors",
-                location.pathname === "/videos" && "bg-neutral-100"
-              )}
-            >
-              <VideoIcon className="w-5 h-5" />
-              <span>Videos</span>
-            </Link>
-          </TabsTrigger>
+          <TabsList className="flex flex-col space-y-1 bg-transparent">
+            <TabsTrigger value="/" asChild>
+              <Link
+                to="/"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors",
+                  location.pathname === "/" && "bg-neutral-100"
+                )}
+              >
+                <Home className="w-5 h-5" />
+                <span>Home</span>
+              </Link>
+            </TabsTrigger>
+            <TabsTrigger value="/hook-generator" asChild>
+              <Link
+                to="/hook-generator"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors",
+                  location.pathname === "/hook-generator" && "bg-neutral-100"
+                )}
+              >
+                <Brush className="w-5 h-5" />
+                <span>Hook Generator</span>
+              </Link>
+            </TabsTrigger>
+            <TabsTrigger value="/videos" asChild>
+              <Link
+                to="/videos"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors",
+                  location.pathname === "/videos" && "bg-neutral-100"
+                )}
+              >
+                <VideoIcon className="w-5 h-5" />
+                <span>Videos</span>
+              </Link>
+            </TabsTrigger>
+          </TabsList>
         </Tabs>
       </div>
 
