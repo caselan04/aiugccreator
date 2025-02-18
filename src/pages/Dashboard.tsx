@@ -2,9 +2,16 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import UGCEditor from "@/components/dashboard/UGCEditor";
-import { Settings, Bell, Menu } from "lucide-react";
+import { Settings, Menu, UserRound, LineChart, CreditCard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarContext } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
 
 const DashboardContent = () => {
   const { setCollapsed, setShowMobileMenu } = useSidebarContext();
@@ -34,7 +41,37 @@ const DashboardContent = () => {
             <Button variant="ghost" size="icon">
               <Settings className="w-5 h-5" />
             </Button>
-            <div className="w-8 h-8 rounded-full bg-neutral-200" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative w-8 h-8 rounded-full">
+                  <div className="w-8 h-8 rounded-full bg-neutral-200" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to="/account" className="flex items-center gap-2">
+                    <UserRound className="w-4 h-4" />
+                    <span>Account</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/usage" className="flex items-center gap-2">
+                    <LineChart className="w-4 h-4" />
+                    <span>Usage</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/billing" className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" />
+                    <span>Billing</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                  <LogOut className="w-4 h-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
