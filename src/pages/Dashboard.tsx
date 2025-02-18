@@ -43,11 +43,11 @@ const DashboardContent = () => {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <div className="cursor-pointer p-2 hover:bg-gray-100 rounded-full">
                   <UserRound className="w-5 h-5" />
-                </Button>
+                </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent className="w-56 bg-white">
                 <DropdownMenuItem asChild>
                   <Link to="/account" className="flex items-center gap-2">
                     <UserRound className="w-4 h-4" />
